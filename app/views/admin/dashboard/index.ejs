@@ -1,0 +1,192 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<div class="content">
+
+    <h1 class="mb-4 fw-semibold d-flex align-items-center main-title fs-3">
+        Welcome <%- locals.firstName.charAt(0).toUpperCase() + locals.firstName.slice(1).toLowerCase() %>
+        <img class="ms-2" src="../assets/waveing-hand.svg" style="width: 32px; height: 32px;" alt="">
+    </h1>
+
+    <div class="row gx-3 gy-3 mb-3">
+        
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/bidding-sessions">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/biddingSession_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Bidding Sessions</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/programs">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/programs_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Programs</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/courses">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/courses_2.2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Courses</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/program-sessions">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/session_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Program Sessions</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/areas">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/areas_2.2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Areas</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/specialization">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/specialization_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Specialization</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/concentration-settings">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/concentration_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Concentration Settings</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/students-data">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/students_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Students Data</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/pre-requisites">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/pre_requisites_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Pre-requisites</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/completed-courses">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/comp_courses_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Completed Courses</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/division-batches">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/divisions_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Divisions Batches</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/elective-timetable">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/elective_timetable_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Elective Timetable</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/round-settings">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/round_settings_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Round Settings</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/bonus-points">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/bonus_points_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Bonus Points</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-xl-2 col-lg-4 col-md-6 row-card-data">
+            <a href="/admin/dashboard/manual-enrollment">
+                <div class="card text-center row-card">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                        <img src="/assets/icon_imgs/manual_enrollment_2.png" alt="">
+                        <p class="fw-normal pt-3 mb-0 text-uppercase">Manual Enrollment</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
+
+<script>
+
+setActiveMenuItem(`<%- active %>`)
+    
+</script>   
+
+<%- include("../partials/footerEnd") %>

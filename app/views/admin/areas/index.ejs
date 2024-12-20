@@ -1,0 +1,73 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Areas</h1>
+        <button class="btn event-btn" id="get-areas-by-refresh-btn">Refresh</button>
+    </div>
+
+    <div class="card border-0 flex-grow-1 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Area Name</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(areaList.length > 0){ %>
+                    <% areaList.forEach((area, idx) => { %>
+                        <tr>
+                            <td><%= (idx+1) %></td>
+                            <td><%= area.area_name %></td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="2">No Area Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+setActiveMenuItem(`<%- active %>`)
+
+$("#get-areas-by-refresh-btn").on("click", function(){
+    
+    let ApiObj = {
+        type : "POST",
+        url : "/admin/areas/areas-by-refresh",
+        data : {},
+        dataType : JSON
+    }
+
+    ajaxApi(ApiObj).then(result => {
+        toast.success(result.description)
+        setTimeout(()=> {
+            location.reload()
+        }, [3000])
+    }).catch(error => {
+        toast.error(error.responseJSON.description)
+    })
+    
+})
+
+</script>
+<%- include("../partials/footerEnd") %>

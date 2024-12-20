@@ -1,0 +1,912 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+
+.remove-single{
+    color : #000 !important;
+    text-decoration: none !important;
+}
+
+#timer-container{
+    min-width: 175px;
+}
+
+.end-time{
+    filter: invert(25%) sepia(95%) saturate(2908%) hue-rotate(341deg) brightness(96%) contrast(103%);
+}
+
+.start-time{
+    filter: invert(27%) sepia(84%) saturate(1236%) hue-rotate(115deg) brightness(91%) contrast(90%);
+}
+
+.pts-card{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px;
+    width: 175px;
+}
+
+.pts-card.success{
+    background-color: #16A34A;
+    color : #fff;
+    border: 0;
+}
+
+.pts-card.error{
+    background-color: #dc3545;
+    color : #fff;
+    border: 0;
+}
+
+.plus label {
+    box-shadow: 0px 0px 0px 0px rgba(22,163,74,0.5);
+}
+
+.plus label:hover{
+    background-color: #16A34A;
+    border-color: #16A34A;
+    box-shadow: 0px 0px 0px .5em rgba(253,192,47,0);
+    color: #fff;
+}
+
+.plus label:after {
+    content: "\f067";
+}
+
+/* .plus input:checked + label {
+    background-color: #16A34A;
+    border-color: #16A34A;
+    box-shadow: 0px 0px 0px .5em rgba(253,192,47,0);
+}
+.plus input:checked + label:after {
+    color: #16A34A;
+} */
+
+.trash label {
+    box-shadow: 0px 0px 0px 0px rgba(220,53,69,0.5);
+}
+
+.trash label:hover{
+    background-color: #dc3545;
+    border-color: #dc3545;
+    box-shadow: 0px 0px 0px .5em rgba(253,192,47,0);
+    color : #fff;
+}
+
+.trash label:after {
+    content: "\f00d";
+}
+.trash input:checked + label {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    box-shadow: 0px 0px 0px .5em rgba(253,192,47,0);
+}
+.trash input:checked + label:after {
+    color: #dc3545;
+}
+
+.anim-icon {
+    width: 1.9em;
+    height: 1.9em;
+    margin: 10px;
+    font-size: 16px;
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    vertical-align: middle;
+}
+.anim-icon input {
+    display: none;
+}
+.anim-icon label {  
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: .1em solid #ccc;
+    border-radius: 100%;
+    display: block;
+    font: normal normal normal 13px/1 FontAwesome;
+    color: #ccc;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    cursor: pointer;
+}
+.anim-icon label:after {
+    left: 0;
+    top: 50%;
+    margin-top: -0.5em;
+    display: block;
+    position: relative;
+    text-align: center;
+}
+.anim-icon input:checked + label {
+    animation: check-in .3s forwards;
+    transition: background-color .1s .2s, box-shadow 1s;
+    border-width: .1em;
+    border-style: solid;
+}
+.anim-icon input:checked + label:after {
+    animation: icon .3s forwards;
+}
+
+
+/* @keyframes icon {
+    0% {
+        margin-top: -0.5em;
+        font-size: 1.5em;
+   }
+    100% {
+        font-size: 1em;
+        opacity: 1;
+        color: white;
+   }
+}
+@keyframes check-in {
+    0% {
+        left: 20%;
+        top: 20%;
+        width: 60%;
+        height: 60%;
+   }
+    80% {
+        left: -5%;
+        top: -5%;
+        width: 110%;
+        height: 110%;
+   }
+    100% {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+   }
+}
+@keyframes check {
+    0% {
+        left: 5%;
+        top: 5%;
+        width: 90%;
+        height: 90%;
+   }
+    10% {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+   }
+    80% {
+        left: -5%;
+        top: -5%;
+        width: 110%;
+        height: 110%;
+   }
+    90% {
+        left: 5%;
+        top: 5%;
+        width: 90%;
+        height: 90%;
+   }
+    100% {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+   }
+} */
+
+</style>
+
+<div class="content">
+    <div class="container-fluid d-flex flex-column p-0 h-100">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h1 class="page-title">Demand Estimation Round</h1>
+            <div class="card bg-danger-subtle border-0 p-2 px-3 mt-3 mt-sm-0 d-none" id="timer-container">
+                <h1 class="m-0 d-flex justify-content-between align-items-center gap-2 fs-5 fw-semibold text-danger" >
+                    <img class="end-time" id="timer-img" src="/assets/icon_svgs/ClockOutline-1.svg" style="width: 24px; height: 24px;" alt="">
+                    <!-- 02 : 12 : 39 -->
+                    <span id="remaining-time"></span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- <div class="mt-5 text-center d-none" id="not-eligible-title">
+            <h1 class="fs-4">You are Not Eligible For Demand Estimation Round</h1>
+        </div> -->
+
+        <div class="d-none mt-5 text-center" id="round-status-container">
+            <h1 class="fs-4"></h1>
+        </div>
+        
+        <div class="d-none"  id="round-active-container">
+            <div class="row px-3 d-none d-lg-flex gap-1 gap-lg-2 align-items-center">
+                <div class="card pts-card">
+                    <h1 class="m-0 fs-6 fw-normal">Total Creds</h1>
+                    <h1 class="m-0 fs-6 fw-medium" id="selected-total-credits">
+                        <!-- 27 pts -->
+                        0
+                    </h1>
+                </div>
+                <% acadSessions.forEach(acadSession => { %>
+                    <div class="card pts-card">
+                        <h1 class="m-0 fs-6 fw-normal" 
+                        id="selected-acad-session-<%= acadSession.id %>" 
+                        data-acad-session-id="<% acadSession.id %>">
+                            <%= acadSession.name %>
+                        </h1>
+                        <h1 class="m-0 fs-6 fw-medium" id="selected-acad-session-credits">
+                            0
+                        </h1>
+                    </div>    
+                <% }) %>
+                <!-- <div class="card pts-card">
+                    <h1 class="m-0 fs-6 fw-normal">Trimester IV</h1>
+                    <h1 class="m-0 fs-6 fw-medium">15 pts</h1>
+                </div>
+                <div class="card pts-card">
+                    <h1 class="m-0 fs-6 fw-normal">Trimester V</h1>
+                    <h1 class="m-0 fs-6 fw-medium">12 pts</h1>
+                </div>
+                <div class="card pts-card">
+                    <h1 class="m-0 fs-6 fw-normal">Trimester VI</h1>
+                    <h1 class="m-0 fs-6 fw-medium">12 pts</h1>
+                </div> -->
+                <div class="card pts-card" id="criteria-met">
+                    <h1 class="m-0 fs-6 fw-normal">Criteria Met</h1>
+                    <h1 class="m-0 fs-6 fw-medium" id="criteria-met-status">No</h1>
+                </div>
+                <div class="card pts-card" id="area-covered">
+                    <h1 class="m-0 fs-6 fw-normal">Area Covered</h1>
+                    <h1 class="m-0 fs-6 fw-medium" id="area-covered-count">0</h1>
+                </div>
+                <div class="card pts-card" id="primary-area">
+                    <h1 class="m-0 fs-6 fw-normal">Pri Area Creds</h1>
+                    <h1 class="m-0 fs-6 fw-medium" id="primary-area-creds">
+                    <% if(demandRoundCriteria.primaryArea){ %>
+                        0
+                    <% }else{ %>
+                        0
+                    <% } %>
+                    </h1>
+                </div>
+    
+            </div>
+    
+            <div class="row mt-4 flex-grow-1 d-flex">
+                <!-- First Column -->
+                <div class="col-12 col-lg-6 px-3 d-flex flex-column flex-grow-1">
+                    <h1 class="fs-5 fw-medium">Selected Course</h1>
+                    <div class="d-flex flex-column flex-sm-row align-items-center">
+                        <h1 class="m-0 fs-6 fw-normal col-6">
+                            Areas to Cover: 
+                            <span class="fw-semibold">
+                                <%= demandRoundCriteria.areasCover %>
+                            </span>
+                        </h1>
+                        <h1 class="m-0 fs-6 fw-normal col-6">
+                            Min Creds in Primary Area: 
+                            <span class="fw-semibold">
+                                <%= demandRoundCriteria.minCreditsInPrimayArea %>
+                            </span>
+                        </h1>
+                    </div>
+                    <div class="d-flex flex-column flex-sm-row align-items-center mt-2">
+                        <h1 class="m-0 fs-6 fw-normal col-6">
+                            Min Creds in Per Area: 
+                            <span class="fw-semibold">
+                                <%= demandRoundCriteria.minCreditsPerArea %>
+                            </span>
+                        </h1>
+                        <h1 class="m-0 fs-6 fw-normal col-6">
+                            Max Creds in Per Area: 
+                            <span class="fw-semibold">
+                                <%= demandRoundCriteria.maxCreditsPerArea %>
+                            </span>
+                        </h1>
+                    </div>
+                    <!-- Card with flex-grow -->
+                    <div class="mt-3 card p-3 d-flex flex-column flex-grow-1">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h1 class="fs-6">Course List</h1>
+                            <a href="#" role="button" class="event-btn-link d-none" id="edit-course-list-btn">Edit</a>
+                        </div>
+                        <div class="row mt-1" id="edit-course-list-filters">
+                            <div class="col-12 col-lg-6">
+                                <select id="edit-list-set-trimester">
+                                    <option value="" selected>Select Trimister</option>
+                                    <% acadSessions.forEach(acadSession => { %>
+                                        <option value="<%= acadSession.id %>"><%= acadSession.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <select id="edit-list-set-area">
+                                    <option value="" selected>Select Area</option>
+                                </select>
+                            </div>
+                            <div class="col-12 d-none">
+                                <select id="edit-list-set-course">
+                                    <option value="" selected>Select Course</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row overflow-y-auto" id="selected-course-list">
+                            <!-- Dynamic content -->
+                            <% if(selectedCourseList.length > 0) { %>
+                                <% selectedCourseList.forEach(selectedCourse => { %>
+                                    <div class="col-xxl-6 col-12 mt-2 d-flex">
+                                        <div class="card p-3 w-100 d-flex flex-col justify-content-between gap-2">
+                                            <h1 class="m-0 fs-6 fw-medium"><%= selectedCourse.courseName %></h1>
+                                            <h1 class="m-0 text-body-tertiary fs-7"><%= selectedCourse.areaName %></h1>
+                                            <div class="row">
+                                                <div class="col-12 col-md-6">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="/assets/icon_svgs/academic-cap.svg" style="width: 18px; height: 18px;">
+                                                        <span class="m-0 fw-medium"><%= selectedCourse.acadSession %></span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 col-md-6 mt-1 mt-md-0">
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <img src="/assets/icon_svgs/CurrencyRupeeOutline.svg" style="width: 18px; height: 18px;">
+                                                        <span class="m-0 fw-medium"><%= selectedCourse.credits %> credits</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="anim-icon trash">
+                                                <input type="checkbox" id="trash-<%= selectedCourse.id %>">
+                                                <label for="trash-<%= selectedCourse.id %>"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% })%> 
+                            <% }else{ %>
+                                <span class="fst-italic fs-6 text-center mt-4">No Courses</span>
+                            <% } %>
+                        </div>
+                        <div class="mt-2 d-flex justify-content-end border-top d-none" id="confirm-list-div">
+                            <button class="mt-2 btn event-btn">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            
+                <!-- Second Column -->
+                <div class="col-12 col-lg-6 px-3 mt-4 mt-lg-0 d-flex flex-column flex-grow-1">
+                    <div class="card p-3 d-flex flex-column flex-grow-1">
+                        <h1 class="fs-5 fw-medium">Available Courses</h1>
+                        <div class="row mt-1">
+                            <div class="col-12 col-lg-6">
+                                <select id="set-trimester">
+                                    <option value="" selected>Select Trimister</option>
+                                    <% acadSessions.forEach(acadSession => { %>
+                                        <option value="<%= acadSession.id %>"><%= acadSession.name %></option>
+                                    <% }) %>
+                                </select>
+                            </div>
+                            <div class="col-12 col-lg-6">
+                                <select id="set-area">
+                                    <option value="" selected>Select Area</option>
+                                </select>
+                            </div>
+                            <div class="col-12 d-none">
+                                <select id="set-course">
+                                    <option value="" selected>Select Course</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row overflow-auto mt-1" id="available-course-list">
+                             <% availableCourseList.forEach(course => { %>
+                                <div class="col-xxl-6 col-12 mt-2 d-flex">
+                                    <div class="card p-3 w-100 d-flex flex-col justify-content-between gap-2">
+                                        <h1 class="m-0 fs-6 fw-medium"><%= course.courseName %></h1>
+                                        <h1 class="m-0 text-body-tertiary fs-7"><%= course.areaName %></h1>
+                                        <div class="row">
+                                            <div class="col-12 col-md-6">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="/assets/icon_svgs/academic-cap.svg" style="width: 18px; height: 18px;">
+                                                    <span class="m-0 fw-medium"><%= course.acadSession %></span>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-6 mt-1 mt-md-0">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <img src="/assets/icon_svgs/CurrencyRupeeOutline.svg" style="width: 18px; height: 18px;">
+                                                    <span class="m-0 fw-medium"><%= course.credits %> credits</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="anim-icon plus">
+                                            <input type="checkbox" id="plus-<%= course.courseId %>">
+                                            <label for="plus-<%= course.courseId %>"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<%- include("../partials/footer") %>
+
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+
+    const socket = io()
+    
+    const activeBiddingId = $("#student-data").attr('data-active-bidding-id')
+    const studentId = $("#student-data").attr('data-student-id')
+    const userId = $("#student-data").attr('data-user-id')
+    
+    $("#set-trimester").selectize({
+        plugins: ["remove_button"],
+    })
+
+    $("#set-area").selectize({
+        plugins: ["remove_button"],
+    })
+    $("#set-course").selectize({
+        plugins: ["remove_button"],
+    })
+    
+    const trimesterSelect = $("#set-trimester")[0].selectize
+    const areaSelect = $("#set-area")[0].selectize
+    const courseSelect = $("#set-course")[0].selectize
+
+    $("#edit-list-set-trimester").selectize()
+    $("#edit-list-set-area").selectize()
+    $("#edit-list-set-course").selectize()
+
+    const demandRoundDetails = JSON.parse(`<%- JSON.stringify(roundDetails) %>`)
+    const demandRoundCriteria = JSON.parse(`<%- JSON.stringify(demandRoundCriteria) %>`)
+    const acadSessionWiseCredits = JSON.parse(`<%- JSON.stringify(acadSessionsWiseCredits) %>`)
+    const availableCourseList = JSON.parse(`<%- JSON.stringify(availableCourseList) %>`)
+    const selectedCourseList = JSON.parse(`<%- JSON.stringify(selectedCourseList) %>`) || []
+
+    console.log(demandRoundCriteria)
+    console.log("availableCourseList>>>", availableCourseList)
+    console.log(selectedCourseList)
+    
+    demandRoundCriteria.creditsPerAcadSession = acadSessionWiseCredits
+
+    const studentDemand = {
+        areaCovered : 0,
+        creditsPerArea : [],
+        creditsPerAcadSession : [],
+        primaryArea : `${demandRoundCriteria.name}`,
+        totalElectiveCredits : 0,
+        criteriaMet : false,
+        selectedCourseList : []
+    }
+
+    socket.emit('getDemandRoundStatus', {
+        slug : `<%- slug %>`,
+        biddingId : activeBiddingId,
+        studentId : studentId,
+        demandRoundDetails : demandRoundDetails
+    })
+
+    socket.on('demandRoundStatus', result => {
+
+        $("#round-status-container").addClass("d-none mt-0").removeClass("mt-5");
+        $("#round-active-container, #timer-container").addClass("d-none");
+
+        if(result.status == 'Not-Found'){
+            $("#round-status-container").removeClass("d-none").addClass("mt-5")
+            $("#round-status-container h1").text("Round Not Yet Scheduled")
+        }else if(result.status == 'Not-Started'){
+            $("#round-status-container").removeClass("d-none").addClass("mt-5")
+            $("#round-status-container h1").text(`Round Will Start on ${result.data.startTime}`)
+            $("#timer-container").removeClass("d-none bg-danger-subtle").addClass("bg-success-subtle")
+            $("#timer-img").removeClass("end-time").addClass("start-time")
+            $("#remaining-time").text(result.data.remainingTime).removeClass("text-danger").addClass("text-success")
+            // console.log(result.data.remainingTime)
+            // if(result.data.remainingTime == '00 : 00 : 01'){
+            //     location.reload()
+            // }
+        }else if(result.status == 'Not-Eligible'){
+            $("#round-status-container").removeClass("d-none").addClass("mt-5")
+            $("#round-status-container h1").text("You are Not Eligible For Demand Estimation Round")
+        }else if(result.status == 'Active'){
+            $("#round-active-container").removeClass("d-none")
+            $("#timer-container").removeClass("d-none bg-success-subtle").addClass("bg-danger-subtle")
+            $("#remaining-time").text(result.data.remainingTime).removeClass("text-success").addClass("text-danger")
+            $("#timer-img").removeClass("start-time").addClass("end-time")
+            // console.log(result.data.remainingTime)
+            if(result.data.remainingTime == '00 : 05 : 00'){
+                toast.info('Last 5 Minutes Remaining')
+            }
+
+        }else if(result.status == 'Ended'){
+            $("#round-status-container").removeClass("d-none").addClass("mt-5")
+            $("#round-status-container h1").text("Round Ended")
+        }
+    })
+
+
+    socket.on('courseAddedToDemandEstimation', result => {
+        
+        if(result.errorMessage){
+            // console.log(result.errorMessage.description)
+            toast.error(result.errorMessage.description)
+            return
+        }
+
+        if(Number(result.resultMessage.status) == 1){
+            toast.success(result.resultMessage.description)
+        }else{
+            console.log('here')
+            toast.error(JSON.parse(result.resultMessage.description))
+        }
+
+        checkRoundCriteria(result.studentRoundCriteria)
+        renderSelectedCourseList(result.selectedCourseList)
+        renderAvailableCourseList(result.availableCourseList)
+    })
+
+
+
+
+
+    trimesterSelect.on("change", function(){
+        const acadSessionId = trimesterSelect.items[0]
+        areaSelect.clear()
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/student/demand-estimation/filter-by-acad-session",
+            data : {
+                acadSessionId : acadSessionId
+            },
+            dataType : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+
+            // availableCourseList = result.courseListByAcadSession
+
+            updateAreaOptions(result.areaListByAcadSession)
+            updateCourseOptions(result.courseListByAcadSession)
+            renderAvailableCourseList(availableCourseList)
+        }).catch(err => {
+            console.log(err)
+        })
+    })
+
+    areaSelect.on("change", function(){
+        const acadSessionId = trimesterSelect.items[0]
+        const areaId = areaSelect.items[0]
+        
+        ApiObj = {
+            type : "POST",
+            url : "/student/demand-estimation/filter-by-area",
+            data : {
+                acadSessionId : acadSessionId,
+                areaId, areaId
+            },
+            dataType : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            console.log(result)
+            // availableCourseList = result.courseListByArea
+            renderAvailableCourseList(availableCourseList)
+            updateCourseOptions(result.courseListByArea)
+        }).catch(err => {
+            console.log(err)
+        })
+
+    })
+
+    function updateAreaOptions(areas){
+        areaSelect.clearOptions()
+        areas.forEach(area => {
+            areaSelect.addOption({value : area.id , text : area.areaName})
+        })
+    }
+
+    function updateCourseOptions(courses){
+        courseSelect.clear()
+        courses.forEach(course => {
+            courseSelect.addOption({value : course.courseId, text : course.courseName})
+        })
+    }
+
+    $(document).on("click", '.anim-icon.plus input[type="checkbox"]', function(){
+        const selectedCourseId = parseInt(this.id.split('-')[1], 10)
+        
+        // const selectedCourse = availableCourseList.find(course => course.courseId === selectedCourseId)
+        
+        // //check Total Elective Credits Limit Should not exceeds
+        // if(studentDemand.totalElectiveCredits + selectedCourse.credits > demandRoundCriteria.totalCredits){
+        //     alert('You have reached the Maximum Credit Limit')
+        //     return
+        // }
+
+        // //check Max Credits Per Area
+        // studentDemand.creditsPerArea.forEach(area => {
+        //     if(area.areaName == selectedCourse.areaName){
+        //         if(area.credits + selectedCourse.credits > demandRoundCriteria.maxCreditsPerArea ){
+        //             alert(`You have reached the Maximum Credits Limit for ${selectedCourse.areaName}`)
+        //             return
+        //         }
+        //     }
+        // }) 
+
+        // //check Max Credits Per AcadSession
+        // studentDemand.creditsPerAcadSession.forEach(studentAcadSession => {
+        //     demandRoundCriteria.creditsPerAcadSession.forEach(concentrationAcadSession => {
+        //         if(concentrationAcadSession.id === studentAcadSession.acadSessionId && studentAcadSession.acadSessionId == selectedCourse.acadSessionId){
+        //             if(Number(studentAcadSession.credits) + Number(selectedCourse.credits) > concentrationAcadSession.credits){
+        //                 alert(`You have reached the Maximum Credits Limit for ${selectedCourse.acadSession}`)
+        //                 return
+        //             }
+        //         }
+        //     })
+        // })
+
+        // //check if Area Already Exists in then and Add Selected Course Credits 
+        // let areaAlreadyExists = false
+        // studentDemand.creditsPerArea.forEach(area => {
+        //     if(area.areaName === selectedCourse.areaName){
+        //         area.credits += selectedCourse.credits
+        //         areaAlreadyExists = true
+        //     }
+        // })
+
+        // //check if Area Not Exists Add Area Entry into Student Object
+        // if(!areaAlreadyExists){
+        //     studentDemand.creditsPerArea.push({
+        //         areaName: selectedCourse.areaName,
+        //         credits: selectedCourse.credits
+        //     })
+        // }
+
+        // //check if AcadSession Exists in Student Object 
+        // let acadSessionAlreadyExits = false
+        // studentDemand.creditsPerAcadSession.forEach(acadSession => {
+        //     if(acadSession.acadSessionId == selectedCourse.acadSessionId){
+        //         acadSession.credits += selectedCourse.credits
+        //         acadSessionAlreadyExits = false
+        //     }
+        // })
+
+        // //check if AcadSession Not Exists Add AcadSession Entry into Student Object
+        // if(!acadSessionAlreadyExits){
+        //     studentDemand.creditsPerAcadSession.push({
+        //         acadSessionId : selectedCourse.acadSessionId,
+        //         credits : selectedCourse.credits
+        //     })
+        // }
+
+        // //update Total Elective Credits into Student Object
+        // studentDemand.totalElectiveCredits += selectedCourse.credits
+
+        // //update Area Covered into Student Object
+        // const totalAreaCovered = studentDemand.creditsPerArea.filter(area => {
+        //     if(area.areaName == demandRoundCriteria.primaryArea){
+        //         return area.credits >= demandRoundCriteria.minCreditsInPrimayArea
+        //     }else{
+        //         return area.credits >= demandRoundCriteria.maxCreditsPerArea
+        //     }
+        // }) 
+
+        // studentDemand.areaCovered = totalAreaCovered.length
+        
+        // //
+        // //update values into HTML as per Student Object
+        // //
+        
+        // //update Total Elective Credits
+        // $("#selected-total-credits").text(Number($("#selected-total-credits").text()) + Number(selectedCourse.credits)) 
+        
+        // //update Area Covered
+        // $("#area-covered-count").text(studentDemand.areaCovered) 
+
+        // //update Primary Area Credits
+        // if(demandRoundCriteria.primaryArea){
+        //     const primaryAreaMatch = studentDemand.creditsPerArea.find(area => area.areaName === demandRoundCriteria.primaryArea)
+
+        //     if (primaryAreaMatch) {
+        //         $("#primary-area-creds").text(primaryAreaMatch.credits);
+        //     }
+        // }
+
+        // //update Acad Session Wise Credits 
+        // $(`#selected-acad-session-credits-${selectedCourse.acadSessionId}`).text(
+        //     studentDemand.creditsPerAcadSession.find(acadSession => acadSession.acadSessionId == selectedCourse.acadSessionId).credits
+        // )
+        
+        socket.emit('addCourseToDemandEstimation', {
+            slug : `<%- slug %>`,
+            biddingId : activeBiddingId,
+            userId : userId,
+            studentId : studentId,
+            courseId : selectedCourseId,
+            concetrationName : demandRoundCriteria.name
+        })
+
+        // studentDemand.selectedCourseList.push(selectedCourse)
+        
+        // check Criteria is Completed Or Not
+        // let isMinCreditsInPrimaryArea = 1
+        // if(demandRoundCriteria.primaryArea){
+
+        //     const creditsAreaArray = studentDemand.creditsPerArea.filter(area => {
+        //         return area.areaName === demandRoundCriteria.primaryArea && area.credits >= demandRoundCriteria.minCreditsInPrimayArea
+        //     })
+
+        //     isMinCreditsInPrimaryArea = creditsAreaArray.length
+        // }
+
+        // let isAreaCovered = studentDemand.areaCovered >= demandRoundCriteria.areasCover
+
+        // if(isMinCreditsInPrimaryArea > 0 && isAreaCovered && studentDemand.totalElectiveCredits == demandRoundCriteria.totalCredits){
+        //     studentDemand.criteriaMet = true
+        // }else{
+        //     studentDemand.criteriaMet = false
+        // }
+
+
+
+        // availableCourseList = availableCourseList.filter(course => course.courseId !== selectedCourseId)
+
+        // console.log('selected course list :: >>>', selectedCourseList)
+        // console.log('updated available course list :: >>', availableCourseList)
+        // renderSelectedCourseList(selectedCourseList)
+        // renderAvailableCourseList(availableCourseList)
+        
+    })
+
+    $(document).on("click", '.anim-icon.trash input[type="checkbox"]', function(){
+        const removeCourseId = parseInt(this.id.split('-')[1], 10)
+        
+        console.log(removeCourseId)
+
+        const removeCourse = selectedCourseList.find(course => course.id === removeCourseId)
+
+        socket.emit('removeCourseFromDemandEstimation', {
+            slug : `<%- slug %>`,
+            biddingId : activeBiddingId,
+            userId : userId,
+            studentId : studentId,
+            courseId : removeCourseId,
+            concetrationName : demandRoundCriteria.name
+        })
+
+        // console.log('selected course list :: >>>', selectedCourseList)
+        // console.log('updated available course list :: >>', availableCourseList)
+
+        // renderSelectedCourseList(selectedCourseList)
+        // renderAvailableCourseList(availableCourseList)
+    })
+
+    function checkRoundCriteria(studentCriteria){
+        console.log(studentCriteria)
+        
+        studentCriteria.total_credits != null ? $("#selected-total-credits").text(studentCriteria.total_credits) : 0
+        const totalCreditsDiv = $("#selected-total-credits").closest(".card.pts-card")
+        if(studentCriteria.total_credits == demandRoundCriteria.totalCredits){
+            totalCreditsDiv.addClass('bg-success text-white')
+        }else{
+            totalCreditsDiv.removeClass('bg-success text-white')
+        }
+
+        studentCriteria.no_of_areas_covered != null ? $("#area-covered-count").text(studentCriteria.no_of_areas_covered) : 0
+        const areaCoveredDiv = $("#area-covered-count").closest(".card.pts-card")
+        if(studentCriteria.no_of_areas_covered == demandRoundCriteria.areaCover){
+            areaCoveredDiv.addClass('bg-success text-white')
+        }else{
+            areaCoveredDiv.removeClass('bg-success text-white')
+        }
+        
+
+    }
+
+    function renderSelectedCourseList(selectedCourses){
+        $("#selected-course-list").empty()
+        if(selectedCourses.length > 0){
+            selectedCourses.forEach(course => {
+                const courseCard = `
+                    <div class="col-xxl-6 col-12 mt-2 d-flex">
+                        <div class="card p-3 w-100 d-flex flex-col justify-content-between gap-2">
+                            <h1 class="m-0 fs-6 fw-medium">${course.courseName}</h1>
+                            <h1 class="m-0 text-body-tertiary fs-7">${course.areaName}</h1>
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="/assets/icon_svgs/academic-cap.svg" style="width: 18px; height: 18px;">
+                                        <span class="m-0 fw-medium">${course.acadSession}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 mt-1 mt-md-0">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="/assets/icon_svgs/CurrencyRupeeOutline.svg" style="width: 18px; height: 18px;">
+                                        <span class="m-0 fw-medium">${course.credits} credits</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="anim-icon trash">
+                                <input type="checkbox" id="trash-${course.id}">
+                                <label for="trash-${course.id}"></label>
+                            </div>
+                        </div>
+                    </div>
+                `
+                $("#selected-course-list").append(courseCard)
+            })
+        }else{
+            const emptyCourses = `
+                <span class="fst-italic fs-6 text-center mt-4">No Courses</span>
+            `
+            $("#selected-course-list").append(emptyCourses)
+        }
+        
+    }
+
+    function renderAvailableCourseList(courses) {
+        if (trimesterSelect.items[0] !== undefined) {
+            const acadSessionId = trimesterSelect.items[0];
+            courses = courses.filter(course => Number(course.acadSessionId) === Number(acadSessionId));
+        }
+
+        if (areaSelect.items[0] !== undefined) {
+            const areaId = areaSelect.items[0];
+            courses = courses.filter(course => Number(course.areaId) === Number(areaId));
+        }
+
+        $("#available-course-list").empty();
+
+        if (courses.length > 0) {
+            courses.forEach(course => {
+                const courseCard = `
+                    <div class="col-xxl-6 col-12 mt-2 d-flex">
+                        <div class="card p-3 w-100 d-flex flex-col justify-content-between gap-2">
+                            <h1 class="m-0 fs-6 fw-medium">${course.courseName}</h1>
+                            <h1 class="m-0 text-body-tertiary fs-7">${course.areaName}</h1>
+                            <div class="row">
+                                <div class="col-12 col-md-6">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="/assets/icon_svgs/academic-cap.svg" style="width: 18px; height: 18px;">
+                                        <span class="m-0 fw-medium">${course.acadSession}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 mt-1 mt-md-0">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="/assets/icon_svgs/CurrencyRupeeOutline.svg" style="width: 18px; height: 18px;">
+                                        <span class="m-0 fw-medium">${course.credits} credits</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="anim-icon plus">
+                                <input type="checkbox" id="plus-${course.courseId}">
+                                <label for="plus-${course.courseId}"></label>
+                            </div>
+                        </div>
+                    </div>`;
+                $("#available-course-list").append(courseCard);
+            });
+        } else {
+            const emptyMessage = `
+                <span class="fst-italic fs-6 text-center mt-4">No Courses</span>
+            `;
+            $("#available-course-list").append(emptyMessage);
+        }
+    }
+
+</script>
+
+<%- include("../partials/footerEnd") %>

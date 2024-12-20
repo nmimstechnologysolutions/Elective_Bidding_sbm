@@ -1,0 +1,518 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+.pts-card{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px;
+    width: 175px;
+}
+
+.pts-card.success{
+    background-color: #16A34A;
+    color : #fff;
+    border: 0;
+}
+
+.pts-card.error{
+    background-color: #dc3545;
+    color : #fff;
+    border: 0;
+}
+
+.round-tab{
+    text-align: center;
+}
+
+.round-tab a{
+    color: #4B5563;
+}
+
+.round-tab.active{
+    background-color: var(--primary-color);
+    border-radius: 6px;
+}
+
+.round-tab.active a{
+    color: #fff;
+    font-weight: 500;
+}
+
+.card-text {
+  margin: 0;
+  font-weight: 400;
+  font-size: 14px;
+  letter-spacing: -0.28px;
+}
+
+.exampleSearch {
+  width: 250px;
+  margin: 50px;
+  display: block;
+}
+
+.wrap {
+  width: 100%;
+  height: 188px;
+  position: absolute;
+  top: -8px;
+  left: 8px;
+  overflow: hidden;
+}
+
+.wrap:before,
+.wrap:after {
+  content: "";
+  position: absolute;
+}
+
+.wrap:before {
+  width: 40px;
+  height: 8px;
+  right: 70px;
+  /* background: #16A34A; */
+  border-radius: 8px 8px 0px 0px;
+}
+
+.wrap:after {
+  width: 8px;
+  height: 40px;
+  right: 0px;
+  top: 70px;
+  /* background: #16A34A; */
+  border-radius: 0px 8px 8px 0px;
+}
+
+
+.wrap-winning:before,
+.wrap-winning::after {
+  background: #059669;
+}
+
+.wrap-losing:before,
+.wrap-losing::after {
+  background: #F43F5E;
+}
+
+.ribbon {
+  width: 200px;
+  height: 40px;
+  line-height: 40px;
+  position: absolute;
+  top: 15px;
+  right: -65px;
+  z-index: 2;
+  overflow: hidden;
+  -webkit-transform: rotate(45deg);
+  transform: rotate(45deg);
+  border: 1px dashed;
+  text-align: center;
+  font-weight: 700;
+  color: #fff;
+}
+
+/* #16A34A   */
+/* #22C55E */
+.ribbon-winning {
+  box-shadow: 0 0 0 2px #059669, 0px 21px 5px -18px rgba(0, 0, 0, 0.6);
+  background: #059669;
+}
+
+.ribbon-losing {
+  box-shadow: 0 0 0 2px #E11D48, 0px 21px 5px -18px rgba(0, 0, 0, 0.6);
+  background: #F43F5E;
+}
+</style>
+
+<div class="content">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Bidding Round</h1>
+        <div class="card bg-danger-subtle border-0 p-2 px-3 mt-3 mt-sm-0">
+            <h1 class="m-0 d-flex align-items-center gap-2 fs-5 fw-semibold text-danger">
+                <img class="time-img" src="/assets/icon_svgs/ClockOutline-1.svg" style="width: 24px; height: 24px;"
+                    alt="">
+                02 : 12 : 39
+            </h1>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center">
+        <!-- Round Tabs -->
+        <div class="d-none d-md-inline">
+            <div class="card border-0 bg-body-secondary">
+                <ul class="m-0 p-1 list-unstyled round-tabs d-flex">
+                    <li class="round-tab active p-1">
+                        <a class="px-2 text-decoration-none fs-7" href="">All</a>
+                    </li>
+                    <li class="round-tab p-1">
+                        <a class="px-2 text-decoration-none fs-7" href="">Course List</a>
+                    </li>
+                    <li class="round-tab p-1">
+                        <a class="px-2 text-decoration-none fs-7" href="">Selected</a>
+                    </li>
+                    <li class="round-tab p-1">
+                        <a class="px-2 text-decoration-none fs-7" href="">Completed</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="d-none d-lg-inline">
+            <div class="card p-2 d-flex flex-row align-items-center gap-3 border-0 bg-success-subtle">
+                <img src="./assets/🦆 emoji _banknote with dollar sign_.svg" style="height: 24px;" alt="">
+                <h1 class="m-0 fs-7 fw-normal text-success-subtle">IV : <span class="fw-semibold">15
+                        pt</span></h1>
+                <h1 class="m-0 fs-7 fw-normal text-success-subtle">V : <span class="fw-semibold">14
+                        pt</span></h1>
+                <h1 class="m-0 fs-7 fw-normal text-success-subtle">VI : <span class="fw-semibold">12
+                        pt</span></h1>
+            </div>
+        </div>
+        
+    </div>
+    
+
+    <div class="mt-3 row">
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+            <div
+                class="card p-3 h-100 d-flex gap-2 flex-column justify-content-between border-0 bg-success-subtle">
+                <div class="wrap wrap-winning">
+                    <span class="ribbon ribbon-winning ">Winning</span>
+                </div>
+                <h1 class="m-0 fs-6 fw-medium">Applied Macroeconomics-A</h1>
+                <h1 class="m-0 fs-7 text-secondary fw-normal">Economics</h1>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/UserGroupOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">50 </span>
+                                people
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/LightningBoltOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">150 </span>
+                                people
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/CurrencyRupeeOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">3</span>
+                                points
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/ChartBarOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">5th </span>
+                                position
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/FlagOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-semibold">Winning </span>
+                                <!-- people -->
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/HandOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">6</span>
+                                points
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <input class="w-100 text-center rounded p-2 fs-7 border-1" type="number"
+                            disabled placeholder="Bid Value">
+                    </div>
+                    <div class="col-6">
+                        <button class="w-100 btn btn-danger p-2 fs-7">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 mt-3 mt-md-0">
+            <div
+                class="card h-100 p-3 d-flex gap-2 flex-column justify-content-between border-0 bg-success-subtle">
+                <div class="wrap wrap-winning">
+                    <span class="ribbon ribbon-winning fw-medium">Winning</span>
+                </div>
+                <h1 class="m-0 fs-6 fw-medium">Investment Analysis and Portfolio Management</h1>
+                <h1 class="m-0 fs-7 text-secondary fw-normal">Finance</h1>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/UserGroupOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">50 </span>
+                                people
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/LightningBoltOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">150 </span>
+                                people
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/CurrencyRupeeOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">3</span>
+                                points
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/ChartBarOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">5th </span>
+                                position
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/FlagOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-semibold">Winning </span>
+                                <!-- people -->
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/HandOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">6</span>
+                                points
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <input class="w-100 text-center rounded p-2 fs-7 border-1" type="number"
+                            disabled placeholder="Bid Value">
+                    </div>
+                    <div class="col-6">
+                        <button class="w-100 btn btn-danger p-2 fs-7">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 mt-3 mt-lg-0">
+            <div
+                class="card p-3 h-100 d-flex gap-2 flex-column justify-content-between border-0 bg-danger-subtle">
+                <div class="wrap wrap-losing">
+                    <span class="ribbon ribbon-losing fw-medium">Losing</span>
+                </div>
+                <h1 class="m-0 fs-6 fw-medium">Financial Markets and Institutions</h1>
+                <h1 class="m-0 fs-7 text-secondary fw-normal">Entrepreneurship</h1>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/UserGroupOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">50 </span>
+                                people
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/LightningBoltOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">150 </span>
+                                people
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/CurrencyRupeeOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">3</span>
+                                points
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/ChartBarOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">5th </span>
+                                position
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/FlagOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-semibold">Losing</span>
+                                <!-- people -->
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/HandOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">6</span>
+                                points
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <input class="bid-input w-100 text-center rounded p-2 fs-7 border-1"
+                            type="number" placeholder="Bid Value">
+                    </div>
+                    <div class="col-6">
+                        <button class="bid-button w-100 btn btn-danger p-2 fs-7">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-4 col-xl-3 mt-3 mt-xl-0">
+            <div id="bid-card"
+                class="card p-3 h-100 d-flex gap-2 flex-column justify-content-between border-0 bg-danger-subtle">
+                <div class="wrap wrap-losing">
+                    <span class="ribbon ribbon-losing fw-medium">Losing</span>
+                </div>
+                <h1 class="m-0 fs-6 fw-medium">Corporate Finance</h1>
+                <h1 class="m-0 fs-7 text-secondary fw-normal">Finance</h1>
+                <div class="d-flex flex-column gap-3">
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/UserGroupOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">50 </span>
+                                people
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/LightningBoltOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">150 </span>
+                                people
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/CurrencyRupeeOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">3</span>
+                                points
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/ChartBarOutline.svg" style="height: 15px; width: 15px;"
+                                alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium">5th </span>
+                                position
+                            </h1>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/FlagOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-semibold">Losing</span>
+                                <!-- people -->
+                            </h1>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <img src="./assets/HandOutline.svg" style="height: 15px; width: 15px;" alt="">
+                            <h1 class="card-text">
+                                <span class="m-0 fw-medium course-pt">6</span>
+                                points
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <input class="bid-input w-100 text-center rounded p-2 fs-7 border-1"
+                            type="number" placeholder="Bid Value">
+                    </div>
+                    <div class="col-6">
+                        <button class="bid-button w-100 btn btn-danger p-2 fs-7">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    
+    <div class="mt-4 row">
+        <h1 class="fs-5 fw-medium">Course Listing</h1>
+        <div class="row">
+            <div class="col-12 col-md-6 col-lg-4">
+                <select name="" id="set-trimester">
+                    <option value="">Select Trimester</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <select name="" id="set-area">
+                    <option value="">Select Area</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-6 col-lg-4">
+                <select name="" id="set-course">
+                    <option value="">Select Course</option>
+                </select>
+            </div>
+        </div>        
+    </div>
+
+
+
+
+
+
+</div>
+
+<%- include("../partials/footer") %>
+
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+
+    $("#set-trimester").selectize()
+    $("#set-area").selectize()
+    $("#set-course").selectize()
+    
+</script>
+
+<%- include("../partials/footerEnd") %>

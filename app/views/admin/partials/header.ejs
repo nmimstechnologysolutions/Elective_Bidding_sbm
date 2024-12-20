@@ -1,0 +1,66 @@
+<main class="main" >
+    <header>
+        <nav class="navbar">
+            <button class="toggle-button" style="border: none; outline: none; background-color: transparent;">
+                <i class="fa-solid fa-angles-left"></i>
+            </button>
+            <div class=" d-flex align-items-center gap-3 ">
+                <h1 class="mb-0 fw-medium fs-6">
+                    Bidding Session
+                    <% if(locals.biddingName && locals.biddingName.length){ %>
+                        <a href="" role="button"
+                        class="ms-2 text-capitalize"
+                        style="text-decoration: none; color: #DC2626;"
+                        data-bs-toggle="modal" data-bs-target="#change-bidding-session-modal">
+                            <%- locals.biddingName %>
+                            <i class="fa-solid fa-caret-down ms-2 text-black"></i>
+                        </a>
+                    <% }else{ %>
+                        <a href="/admin/dashboard/bidding-sessions" role="button"
+                        class="ms-2 text-capitalize"
+                        style="text-decoration: none; color: #DC2626;">
+                            No Bidding Session
+                            <!-- <i class="fa-solid fa-caret-down ms-2 text-black"></i> -->
+                        </a>
+                    <% } %>
+                </h1>
+                <!-- <button class="" >Bidding Session : Test</button> -->
+                <div class="dropdown me-5">
+                    <button class="btn border-0 d-flex align-items-center gap-2 dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <img style="height: 32px; width: 32px; border-radius: 50%;"
+                            src="https://static.vecteezy.com/system/resources/thumbnails/003/337/584/small/default-avatar-photo-placeholder-profile-icon-vector.jpg"
+                            alt="">
+                        <h1 class="m-0 fs-6 fw-medium d-none d-md-inline"><%- locals.firstName.charAt(0).toUpperCase() + locals.firstName.slice(1).toLowerCase() %></h1>
+                    </button>
+                    <ul class="dropdown-menu" style="width: 150px !important;">
+                        <li><a class="dropdown-item" href="/user/logout">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Modal -->
+        <div class="modal fade" id="change-bidding-session-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">Bidding Session Status</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div class="d-flex flex-column gap-1">
+                            <label class="modal-label">Set Bidding Session Status</label>
+                            <select id="set-bidding-session-status"> 
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn event-btn" id="confirm-bidding-session-status-btn">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </header>

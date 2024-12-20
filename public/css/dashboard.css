@@ -1,0 +1,330 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+:root {
+    --primary-color: #DC2626;
+    --background-color: #FDF4F4;
+    /* --background-color: #F9E8E8; */
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', 'sans-serif';
+}
+
+
+.main-title {
+    font-size: 32px;
+    letter-spacing: -0.64px;
+}
+
+.main-title>img {
+    width: 40px;
+}
+
+
+
+
+.m-minus {
+    margin-top: -4px;
+}
+
+.round-img {
+    width: 25px;
+    height: 25px;
+    filter: invert(22%) sepia(75%) saturate(5000%) hue-rotate(360deg) brightness(100%) contrast(100%);
+}
+
+
+
+.selectize-input {
+    /* padding-top: 26px !important; */
+    padding-bottom: 6px !important;
+    border-top-left-radius: 5px !important;
+    border-bottom-left-radius: 5px !important;
+}
+
+
+.accordion {
+    --bs-accordion-bg: #fff;
+    --bs-accordion-active-bg: #fff;
+    --bs-accordion-active-color: #000;
+    --bs-accordion-border-width: none;
+    --bs-accordion-body-padding-x: 0;
+    --bs-accordion-body-padding-y: 15px;
+    --bs-accordion-btn-focus-box-shadow: none;
+    --bs-accordion-btn-padding-x: 0;
+    --bs-accordion-btn-padding-y: 0;
+    --bs-accordion-btn-color: #000;
+}
+
+.loader{
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 35%;
+    transform: translate(-50%, -50%); 
+    /* top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);  */
+    z-index: 1000;
+}
+
+.loader img{
+    height: 50px;
+    height: 50px;
+}
+
+/* .course-card:hover{
+    background-color: #FEF9C3;
+    border: 1px solid #FACC15 !important;
+}
+
+.course-card:active{
+    background-color: #FEF08A;
+}
+
+.star-icon{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 24px;
+    height: 24px;
+    background-image: url('../assets/star-icon.svg');
+    background-size: cover;
+    display: none;
+    filter: invert(68%) sepia(88%) saturate(401%) hue-rotate(332deg) brightness(102%) contrast(101%);
+}
+
+.course-card:hover .star-icon{
+    display: block;
+}
+
+.course-card:active .star-icon{
+    background-image: url('../assets/star-icon-filled.svg') !important;
+    filter: invert(68%) sepia(88%) saturate(401%) hue-rotate(332deg) brightness(102%) contrast(101%);
+}
+
+.favourite-card:hover{
+    background-color: #FEE2E2;
+    border: 1px solid #F87171 !important;
+}
+
+.favourite-card:active{
+    background-color: #FECACA;
+}
+
+.bin-icon{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    width: 24px;
+    height: 24px;
+    background-image: url('../assets/bin-icon.svg');
+    background-size: cover;
+    display: none;
+    filter: invert(25%) sepia(100%) saturate(2000%) hue-rotate(340deg) brightness(90%) contrast(100%);
+}
+
+.favourite-card:hover .bin-icon{
+    display: block;
+}
+
+.favourite-card:active .bin-icon{
+    background-image: url('../assets/bin-icon-filled.svg') !important;
+    filter: invert(25%) sepia(100%) saturate(2000%) hue-rotate(340deg) brightness(90%) contrast(100%);
+} */
+
+.star label {
+    box-shadow: 0px 0px 0px 0px rgba(253,192,47,0.5);
+}
+.star label:after {
+    content: "\f005";
+}
+.star input:checked + label {
+    background-color: #fdc02f;
+    border-color: #fdc02f;
+    box-shadow: 0px 0px 0px .5em rgba(253,192,47,0);
+}
+.star input:checked + label:after {
+    color: #fdc02f;
+}
+
+.anim-icon {
+    width: 1.9em;
+    height: 1.9em;
+    margin: 10px;
+    font-size: 16px;
+    display: inline-block;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    vertical-align: middle;
+}
+.anim-icon input {
+    display: none;
+}
+.anim-icon label {  
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    border: .1em solid #ccc;
+    border-radius: 100%;
+    display: block;
+    font: normal normal normal 13px/1 FontAwesome;
+    color: #ccc;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    cursor: pointer;
+}
+.anim-icon label:after {
+    left: 0;
+    top: 50%;
+    margin-top: -0.5em;
+    display: block;
+    position: relative;
+    text-align: center;
+}
+.anim-icon input:checked + label {
+    animation: check-in .3s forwards;
+    transition: background-color .1s .2s, box-shadow 1s;
+    border-width: .1em;
+    border-style: solid;
+}
+.anim-icon input:checked + label:after {
+    animation: icon .3s forwards;
+}
+
+.search-input{
+    padding: 6px 12px;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon{
+    height: 20px;
+    width: 20px;
+    margin: 0 4px;
+}
+
+.search-input input{
+    border: none;
+    flex-grow: 1;
+}
+
+.search-input input:focus{
+    outline: none;
+}
+
+.result-card-list img{
+    height: 175px;
+    width: 175px;
+}
+
+
+@keyframes icon {
+    0% {
+        margin-top: -0.5em;
+        font-size: 1.5em;
+   }
+    100% {
+        font-size: 1em;
+        opacity: 1;
+        color: white;
+   }
+}
+@keyframes check-in {
+    0% {
+        left: 20%;
+        top: 20%;
+        width: 60%;
+        height: 60%;
+   }
+    80% {
+        left: -5%;
+        top: -5%;
+        width: 110%;
+        height: 110%;
+   }
+    100% {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+   }
+}
+@keyframes check {
+    0% {
+        left: 5%;
+        top: 5%;
+        width: 90%;
+        height: 90%;
+   }
+    10% {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+   }
+    80% {
+        left: -5%;
+        top: -5%;
+        width: 110%;
+        height: 110%;
+   }
+    90% {
+        left: 5%;
+        top: 5%;
+        width: 90%;
+        height: 90%;
+   }
+    100% {
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+   }
+}
+
+
+@media screen and (max-width:767.98px) {
+
+    .main-title {
+        font-size: 22px;
+        letter-spacing: -0.44px;
+    }
+
+    .main-title>img {
+        width: 25px;
+    }
+
+    .container-fluid{
+        padding: 0 !important;
+    }
+
+    .accordion {
+        --bs-accordion-body-padding-x: 0;
+    }
+
+    .result-card-list img{
+        height: 125px;
+        width: 125px;
+    }
+
+}
+
+
+
+
+
+
+
+
+

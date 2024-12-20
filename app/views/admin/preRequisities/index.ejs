@@ -1,0 +1,384 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Pre-Requisites</h1>
+        <button class="btn event-btn" id="add-pre-requisites-btn"  data-bs-toggle="modal" data-bs-target="#add-pre-requisites-modal">Add Pre-Requisite</button>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Program Name</th>
+                    <th>Acad Session</th>
+                    <th>Course Name</th>
+                    <th>Type</th>
+                    <th>Pre-Requisites <br>Course Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(preRequisitiesList.length > 0){ %>
+                    <% preRequisitiesList.forEach((preRequisite, idx) => { %>
+                        <tr>
+                            <td><%= idx + 1 %></td>
+                            <td><%= preRequisite.program_name %></td>
+                            <td><%= preRequisite.acad_session %></td>
+                            <td><%= preRequisite.course_name %></td>
+                            <td><%= preRequisite.type %></td>
+                            <td><%= preRequisite.pre_req_course_name %></td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent" 
+                                        data-pre-requisities-id = "<%= preRequisite.id %>"
+                                        data-pre-requisitie-course-name = "<%= preRequisite.course_name %>"
+                                        data-pre-requisitie-pre-course-name = "<%= preRequisite.pre_req_course_name %>"
+                                        data-pre-requisitie-type = "<%= preRequisite.type %>"
+                                        data-bs-toggle="modal" data-bs-target="#edit-pre-requisites-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent" 
+                                        data-pre-requisities-id = "<%= preRequisite.id %>"
+                                        data-pre-requisitie-pre-course-name = "<%= preRequisite.pre_req_course_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-pre-requisite-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="7">No Pre-Requisites Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="add-pre-requisites-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Pre-Requisitie Course Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select Current Acad Session :</label>
+                            <select id="set-current-acad-session">
+                                <option value="" selected>Select Acad Session</option>
+                                <% acadSessionsList.forEach(acadSession => { %>
+                                    <option value="<%= acadSession.id %>"><%= acadSession.name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select Course :</label>
+                            <select id="set-course">
+                                <option value="" selected>Select Course</option>
+                                <% courseList.forEach(course => { %>
+                                    <option value="<%= course.course_id %>"> <%= course.course_name %> </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select Pre-Requisites Acad Session :</label>
+                            <select id="set-pre-requsites-acad-session">
+                                <option value="" selected>Select Pre-Requisite Acad Session</option>
+                                <% preRequiredAcadSessionsList.forEach(preRequiredAcadSession => { %>
+                                    <option value="<%= preRequiredAcadSession.sap_acad_session_id %>"> <%= preRequiredAcadSession.acad_session %> </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Set Pre-Requisites Type :</label>
+                            <select id="set-pre-requsites-type">
+                                <option value="" selected>Select Pre-Requisite Type</option>
+                                <% preRequisitiesTypes.forEach(preRequisities => { %>
+                                    <option value="<%= preRequisities.id %>"> <%= preRequisities.pre_req_type %> </option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Pre-Requisite Course Id :</label>
+                            <input type="number" class="modal-input" id="set-pre-requsite-course-id" value="" placeholder="Enter Pre-Requisite Course Id">
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Pre-Requisite Course Name :</label>
+                            <input type="text" class="modal-input" id="set-pre-requsite-course-name" placeholder="Enter Pre-Requisite Course Name">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-add-pre-requisite-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="edit-pre-requisites-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Pre-Requisitie Course Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Course Name :</label>
+                            <p class="fs-6" id="edit-pre-requisite-name"></p>
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Pre-Requisite Course Name :</label>
+                            <p class="fs-6" id="edit-pre-requisite-course-name"></p>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label">Bid Points :</label>
+                        <select id="edit-pre-requsites-type">
+                            <% preRequisitiesTypes.forEach(preRequisitiesType => { %>
+                                <option value="<%= preRequisitiesType.id %>"> <%= preRequisitiesType.pre_req_type %> </option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-edit-pre-requisite-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-pre-requisite-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Pre-Requisite</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to delete Pre-Requisite?</p>
+                    <p class="fs-5 mb-0" id="delete-pre-requisite-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-pre-requisite-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+    setActiveMenuItem(`<%- active %>`)
+    
+    $("#set-current-acad-session").selectize()
+    $("#set-course").selectize()
+    $("#set-pre-requsites-acad-session").selectize()
+    $("#set-pre-requsites-type").selectize()
+    $("#edit-pre-requsites-type").selectize()
+
+    const currentAcadSessionSelect = $("#set-current-acad-session")[0].selectize
+    const courseSelect = $("#set-course")[0].selectize
+
+    currentAcadSessionSelect.on("change", function(){
+        const currentAcadSessionId = currentAcadSessionSelect.items[0]
+       
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/pre-requisites/course-list-by-acad-sessions",
+            data : {
+                acadSessionId : currentAcadSessionId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            console.log(result.courseList)
+            addCourseOptionList(result.courseList)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    })
+
+    $("#add-pre-requisites-btn").on("click", function(){
+        $("#set-current-acad-session")[0].selectize.clear()
+        $("#set-course")[0].selectize.clear()
+        $("#set-pre-requsites-acad-session")[0].selectize.clear()
+        $("#set-pre-requsites-type")[0].selectize.clear()
+        $("#set-pre-requsite-course-id").val('')
+        $("#set-pre-requsite-course-name").val('')
+    })
+
+    $("#confirm-add-pre-requisite-btn").on("click", function(){
+
+        // const currentAcadSessionId = $("#set-current-acad-session")[0].selectize.items[0]
+        const currentAcadSessionName = $("#set-current-acad-session").text().trim()
+        const selectedCourseName = $("#set-course").text().trim()
+        const selectedCourseId = $("#set-course")[0].selectize.items[0]
+        const preRequisiteAcadSession = $("#set-pre-requsites-acad-session").text().trim()
+        const preRequisiteType = $("#set-pre-requsites-type").text().trim()
+        const preRequisiteCourseId = $("#set-pre-requsite-course-id").val()
+        const preRequisiteCourseName = $("#set-pre-requsite-course-name").val()
+
+        if(!preRequisiteCourseId || !preRequisiteCourseName){
+            alert('All fields are required')
+            return
+        }
+
+        const inputJSON = {
+            acad_session : currentAcadSessionName,
+            course_id : selectedCourseId,
+            course_name : selectedCourseName,
+            type : preRequisiteType,
+            pre_req_acad_session : preRequisiteAcadSession,
+            pre_req_course_id : preRequisiteCourseId,
+            pre_req_course_name : preRequisiteCourseName
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/pre-requisites/add-pre-requisites",
+            data : {
+                inputJSON : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#add-pre-requisites-modal").modal("hide")
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+
+    $("#edit-pre-requisites-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const preRequisiteId = btn.getAttribute("data-pre-requisities-id")
+        const preRequisiteName = btn.getAttribute("data-pre-requisitie-course-name")
+        const preRequisiteCourseName = btn.getAttribute("data-pre-requisitie-pre-course-name")
+        const preRequsitieType = btn.getAttribute("data-pre-requisitie-type").replace(/\s+/g, ' ').trim().toLowerCase()
+        // console.log(preRequsitieType)
+        const preRequsitieTypeId = preRequsitieType === 'exclusive' ? 1 : 2
+        $("#edit-pre-requisite-name").text(preRequisiteName)
+        $("#edit-pre-requisite-course-name").text(preRequisiteCourseName)
+        $("#edit-pre-requsites-type")[0].selectize.setValue(preRequsitieTypeId)
+        $("#confirm-edit-pre-requisite-btn").attr('data-pre-requisite-id', preRequisiteId)
+    })
+
+    $("#confirm-edit-pre-requisite-btn").on("click", function(){
+        const preRequisiteId = $(this).data('pre-requisite-id')
+        const preRequsitieType = $("#edit-pre-requsites-type").text().trim()
+        
+        const editPreRequisites = {
+            id : String(preRequisiteId),
+            type : preRequsitieType
+        }
+
+        // console.log(JSON.stringify(editPreRequisites))
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/pre-requisites/edit-pre-requisite",
+            data : {
+                inputJSON : JSON.stringify(editPreRequisites)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#edit-pre-requisites-modal").modal("hide")
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+
+    $("#delete-pre-requisite-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const preRequisiteId = btn.getAttribute("data-pre-requisities-id")
+        const preRequisiteCourseName = btn.getAttribute("data-pre-requisitie-pre-course-name")
+        $("#delete-pre-requisite-name").text(preRequisiteCourseName)
+        $("#confirm-delete-pre-requisite-btn").attr("pre-requsitie-id", preRequisiteId)
+    })
+
+    $("#confirm-delete-pre-requisite-btn").on("click", function(){
+        const preRequisiteId = $(this).attr('pre-requsitie-id')
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/pre-requisites/delete-pre-requisite",
+            data : {
+                preRequisiteId : preRequisiteId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#delete-pre-requisite-modal").modal('hide')
+    })
+
+    function addCourseOptionList(courseList){
+        courseSelect.clearOptions()
+
+        if(courseList.length > 0){
+            courseList.forEach(course => {
+                courseSelect.addOption({
+                    value : course.course_id,
+                    text : `${course.course_name}`
+                })
+            })
+        }else{
+            courseSelect.addOption({ value: "", text: "No Course", disabled: true})
+        }
+
+        courseSelect.refreshOptions(false)
+    }
+
+</script>
+<%- include("../partials/footerEnd") %>

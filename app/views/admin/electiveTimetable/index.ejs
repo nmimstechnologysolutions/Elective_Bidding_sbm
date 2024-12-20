@@ -1,0 +1,488 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+    .file-drop-zone {
+        width: 100%;
+        height: 200px;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        transition: border-color 0.3s ease;
+    }
+
+    .file-drop-zone:hover {
+        border-color: #666;
+    }
+
+    .file-drop-zone.dragover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+</style>
+
+
+<div class="content">
+
+    <% if (breadcrumbs && breadcrumbs.length > 1) { %>
+        <div class="breadcrumbs-container">
+            <ul class="breadcrumb">
+                <% breadcrumbs.forEach(crumb => { %>
+                    <li><a href="<%= crumb.url %>"><%= crumb.name %></a></li>
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Elective Timetable</h1>
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <button class="btn event-btn" id="delete-timetable-btn"  data-bs-toggle="modal" data-bs-target="#delete-elective-timetable-modal">Delete Elective Timetable</button>
+            <button class="btn event-btn" id="add-timetable-btn"  data-bs-toggle="modal" data-bs-target="#add-elective-timetable-modal">Add Elective Timetable</button>
+        </div>
+    </div>
+
+    <div class="mb-3 row" id="timetable-filters">
+        <div class="col-lg-4 col-md-6">
+            <select id="set-session">   
+                <option value="" selected disabled>Select Session</option>
+                <% acadSessions.forEach(session => { %>
+                    <option value="<%= session.id %>"><%= session.acad_session  %></option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <select id="set-day">   
+                <option value="" selected disabled>Select Day</option>
+                <option value="1">Monday</option>
+                <option value="2">Tuesday</option>
+                <option value="3">Wendsday</option>
+                <option value="4">Thirsday</option>
+                <option value="5">Friday</option>
+                <option value="6">Saturday</option>
+                <option value="7">Sunday</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="mt-5 text-center" id="no-data-title">
+        <h1 class="fs-4">No Timetable Data</h1>
+    </div>
+
+    <div class="card border-0 table-responsive" style="overflow-x: auto;">
+        <div class="timetable-container"></div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="add-elective-timetable-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Elective Timetable</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <span>Download sample data : <a href="/admin/elective-timetable/get-sample-excel" download="SampleElectiveTimetable.xlsx" class="" style="color: #DC2626;">Sample for Elective Timetable</a></span>
+                    </div>
+                    <div id="file-drop-zone" class="file-drop-zone">
+                        <p>Drop your file here, or click to select</p>
+                        <input type="file" id="file-input" style="display: none;"  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                    </div>
+                    <div id="file-info" class="w-100 mt-3 p-2 d-none justify-content-between align-items-center border rounded" >
+                        <p class="m-0" id="file-name"></p>
+                        <button class="btn btn-close" id="remove-btn"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="save-courses-btn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-elective-timetable-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Elective Timetable</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-3">Delete Timetable by</p>
+                    <div class="w-100 d-flex mb-3">
+                        <button id="delete-by-program-btn" class="col-6 p-2 border-0 rounded-top-left rounded-start event-btn">Program</button>
+                        <button id="delete-by-acad-session-btn" class="col-6 p-2 border-0 rounded-end">Program Acad Session</button>
+                    </div>
+                    <div id="delete-by-program" class="">
+                        <div class="mt-3 w-100">
+                            <select id="set-delete-only-program">   
+                                <option value="-1" selected disabled>Select Program</option>
+                                <% programList.forEach(program => { %>
+                                    <option value="<%= program.id %>"><%= program.program_name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="delete-by-acad-session" class="d-none">
+                        <div class="mt-3 w-100">
+                            <select id="set-delete-program">   
+                                <option value="-1" selected disabled>Select Program</option>
+                                <% programList.forEach(program => { %>
+                                    <option value="<%= program.id %>"><%= program.program_name %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="mt-3 w-100">
+                            <select id="set-delete-session">
+                                <option value="-1" selected disabled>Select Acad Session</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-program-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+
+    $("#set-session").selectize()
+    $("#set-day").selectize()
+    $("#set-delete-only-program").selectize()
+    $("#set-delete-program").selectize()
+    $("#set-delete-session").selectize()
+
+
+    const deleteOnlyByProgramSelect = $("#set-delete-only-program")[0].selectize
+    const deleteProgramSelect = $("#set-delete-program")[0].selectize
+    const deleteAcadSessionSelect = $("#set-delete-session")[0].selectize
+
+    var $fileDropZone = $('#file-drop-zone');
+    var $fileInput = $('#file-input');
+    var $fileInfo = $('#file-info');
+    var $fileName = $('#file-name');
+    var $removeFile = $('#remove-btn');
+    var selectedFile = null; // Store the selected file
+
+    // Trigger file input when div is clicked
+    $fileDropZone.on('click', function(e) {
+        if (e.target !== $fileInput[0]) {  // Check to ensure it's not the file input itself
+            $fileInput.trigger('click');
+        }
+    });
+
+    // Handle file selection through input
+    $fileInput.on('change', function(e) {
+        handleFiles(e.target.files);
+    });
+
+    // Handle drag and drop
+    $fileDropZone.on('dragover', function(e) {
+        e.preventDefault();
+        $fileDropZone.addClass('dragover');
+    });
+
+    $fileDropZone.on('dragleave', function() {
+        $fileDropZone.removeClass('dragover');
+    });
+
+    $fileDropZone.on('drop', function(e) {
+        e.preventDefault();
+        $fileDropZone.removeClass('dragover');
+        var files = e.originalEvent.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // Handle files (only 1 file allowed)
+    function handleFiles(files) {
+        if (files.length > 0) {
+            selectedFile = files[0]; // Select the first file
+            console.log('File dropped or selected:', selectedFile);
+            displayFile(selectedFile.name); // Display the file name
+        }
+    }
+
+    // Display the selected file and show remove button
+    function displayFile(fileName) {
+        $fileName.text(fileName);   // Set the file name in the UI
+        $fileInfo.removeClass('d-none'); // Remove d-none to make the file info visible
+        $fileInfo.addClass('d-flex')
+        $fileDropZone.hide();       // Hide the drop zone
+    }
+
+    // Remove the selected file
+    $removeFile.on('click', function() {
+        clearFileSelection();
+    });
+
+    // Clear the file selection
+    function clearFileSelection() {
+        $fileInput.val('');         // Clear the file input
+        $fileInfo.addClass('d-none'); // Hide file info section by adding d-none
+        $fileName.text('');         // Clear the file name
+        selectedFile = null;        // Reset selected file
+        $fileDropZone.show();       // Show the drop zone again
+    }
+
+    $("#save-courses-btn").on("click", function(){
+        if(!selectedFile){
+            alert("Please select file first")
+            return
+        }
+
+        const formData = new FormData()
+        formData.append('excel-file', selectedFile)
+
+
+        $.ajax({
+            url: '/admin/elective-timetable/add-timetable', 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                // console.log(result)
+                clearFileSelection()
+                $("#add-elective-timetable-modal").modal("hide")
+                toast.success(result.description)
+
+                setTimeout(function(){
+                    location.reload()
+                }, 3000)                
+            },
+            error: function (xhr, status, error) {
+                // console.log(error)
+                console.log(xhr.responseJSON)
+                toast.error(xhr.responseJSON.description)
+            }
+        })
+
+    })
+
+
+    let minAndMaxTimeList = JSON.parse(`<%- JSON.stringify(maxAndMinTimeList) %>`)
+    let roomList = JSON.parse(`<%- JSON.stringify(roomList) %>`)
+    let timeJSON = JSON.parse(`<%- JSON.stringify(timeSlotList) %>`)
+
+    if(roomList.length == 0){
+        $("#no-data-title").removeClass("d-none")
+        $("#timetable-filters").addClass("d-none")
+        $("#delete-timetable-btn").attr("disabled", true)
+    }else{
+        $("#no-data-title").addClass("d-none")
+        $("#timetable-filters").removeClass("d-none")
+        $("#add-timetable-btn").attr("disabled", true)
+    }
+
+    let roomSlot = ``
+    let timeTableProp = {
+        totalSlots : minAndMaxTimeList.end_slot_lid - minAndMaxTimeList.start_slot_lid + 1,
+        pxPerSlot : 13,
+        roomNoWidth : 50
+    }
+
+    for (let room of roomList) {
+        roomSlot += `
+            <div class="d-flex room" data-room-no="${room.room_no}">
+                <div class="room-no" data-room-no="${room.room_no}">
+                    ${room.room_no}
+                </div>
+                <div class="room-slots position-relative" data-room-no="${room.room_no}"></div>
+            </div>
+        `
+    }
+
+    $(".timetable-container").html(roomSlot)
+
+    let timetableWidth = (Number(minAndMaxTimeList.end_slot_lid)-Number(minAndMaxTimeList.start_slot_lid)+1) * timeTableProp.pxPerSlot
+
+    $(":root").css("--roomSlotWidth", timetableWidth + 'px')
+    $(":root").css("--timetableWidth", timetableWidth + 56 + 'px')
+    
+    $("#set-session").on("change",function(){
+        $("#set-day")[0].selectize.clear()
+        $(".room-slots").empty()
+    })
+
+    $('#set-day').on("change", function() {
+        let dayValue = $(this).val()
+        let acadSession = $("#set-session").val()
+
+        // Clear previous room slots
+        $(".room-slots").empty()
+
+        let ApiObj = {
+            type: "POST",
+            url: "/admin/elective-timetable/timetable-by-day",
+            data: {
+                dayId: dayValue,
+                acadSessionId: acadSession
+            },
+            datatype: JSON
+        };
+
+        ajaxApi(ApiObj).then(result => {
+            addRoomSlotItemsToDOM(result.courseList, minAndMaxTimeList, timeTableProp, timeJSON)
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+    function createRoomSlotItem(course, minAndMaxTimeList, timeTableProp, timeJSON){
+        const widthOfEvent = (Number(course.end_slot_lid)-Number(course.start_slot_lid)-1)*timeTableProp.pxPerSlot
+        const leftSideMargin = (Number(course.start_slot_lid)-Number(minAndMaxTimeList.start_slot_lid)) * timeTableProp.pxPerSlot
+
+        let roomSlotItem = $("<div></div>");
+
+        roomSlotItem.attr('class', 'room-slot-item')
+        .attr('data-program-name', course.program_name)
+        .attr("data-left", leftSideMargin)
+        .attr("data-acad-session", course.acad_session)
+        .attr("data-course-name", course.course_name)
+        .attr("data-division", course.division)
+        .attr("data-batch", course.batch)
+        .attr("data-faculty-name", course.faculty_name)
+        .attr('data-start-time', timeJSON[course.start_slot_lid - 1].start_time)
+        .attr('data-end-time', timeJSON[course.end_slot_lid - 1].end_time)
+        .attr('data-faculty-type-abbr', course.faculty_type_abbr)
+        .attr('data-start-lid', course.start_slot_lid)
+        .attr('data-end-lid', course.end_slot_lid)
+        .attr("style", `position:absolute;left: ${leftSideMargin}px; top: 0; text-align:center; width:${widthOfEvent}px; height:100%; background-color:#ffffff; font-size:14px; padding:5px 2px 0px 2px; border-left:1px solid black;`)
+
+        roomSlotItem.html(`
+            <button type="button" class="close btn-close-custom d-none" aria-label="Close"></button>
+            ${course.program_name} - ${course.acad_session} <hr style="margin:0px;"> 
+            ${course.course_name} <hr style="margin:0px;">
+            ${course.division}-${course.batch} <hr style="margin:0px;">
+            ${course.faculty_name} - (${course.faculty_type_abbr})<hr style="margin:0px;">
+            <div class="w-100 m-0 p-0 d-flex justify-content-between align-items-center position-absolute fixed-bottom">
+                <span class="start-time p-1 timetable-badge">
+                    ${timeJSON[course.start_slot_lid - 1].start_time}
+                </span>  
+                <i class="fa-solid fa-arrows-left-right" style="right:${(widthOfEvent / 2) - 7}px;"></i>
+                <span class="end-time p-1 timetable-badge">
+                    ${timeJSON[course.end_slot_lid - 1].end_time} 
+                </span> 
+            </div>
+        `)
+
+        return roomSlotItem
+    }
+
+    function addRoomSlotItemsToDOM(courseList, minAndMaxTimeList, timeTableProp, timeJSON) {
+        courseList.forEach(course => {
+            let roomSlot = $(`.room-slots[data-room-no="${course.room_no}"]`)
+            let roomSlotItem = createRoomSlotItem(course, minAndMaxTimeList, timeTableProp, timeJSON)
+            roomSlot.append(roomSlotItem);
+        })
+    }
+
+    $("#delete-by-program-btn").on("click", function(){
+        $("#delete-by-program").removeClass("d-none")
+        $("#delete-by-acad-session").addClass('d-none')
+        $(this).addClass("event-btn")
+        $("#delete-by-acad-session-btn").removeClass("event-btn")
+        deleteProgramSelect.setValue(-1)
+        deleteAcadSessionSelect.setValue(-1)
+    })
+    
+
+    $("#delete-by-acad-session-btn").on("click", function(){
+        $("#delete-by-program").addClass("d-none")
+        $("#delete-by-acad-session").removeClass('d-none')
+        $(this).addClass("event-btn")
+        $("#delete-by-program-btn").removeClass("event-btn")
+        deleteOnlyByProgramSelect.setValue(-1)
+    })
+
+    deleteProgramSelect.on("change", function(){
+        const programId = deleteProgramSelect.items[0]
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/elective-timetable/acad-session-by-program",
+            data : {
+                programId : programId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            
+            const acadSessionsList = result.acadSessionsList
+
+            deleteAcadSessionSelect.clearOptions()
+            if(acadSessionsList.length > 0){
+                acadSessionsList.forEach(acadSession => {
+                    deleteAcadSessionSelect.addOption({
+                    value : acadSession.id,
+                    text : `${acadSession.acad_session}`
+                })
+            })
+            }else{
+                deleteAcadSessionSelect.addOption({ value: "", text: "No Acad Sessions", disabled: true})
+            }
+
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    })
+
+    deleteOnlyByProgramSelect.on("change", function(){
+        const programId = deleteOnlyByProgramSelect.items[0]
+        $("#confirm-delete-program-btn").attr("data-program", programId)
+        $("#confirm-delete-program-btn").attr("data-type", "program")
+    })
+
+    deleteAcadSessionSelect.on("change", function(){
+        const acadSessionId = deleteAcadSessionSelect.items[0]
+        $("#confirm-delete-program-btn").attr("data-program", acadSessionId)
+        $("#confirm-delete-program-btn").attr("data-type", "programSession")
+    })
+
+    $("#confirm-delete-program-btn").on("click", function(){
+        const programId = $(this).attr("data-program")
+        const deleteType = $(this).attr("data-type")
+
+        // console.log(programId, deleteType)
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/elective-timetable/delete-timetable",
+            data : {
+                programId : programId,
+                type : deleteType
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            console.log(result)
+            $("#delete-elective-timetable-modal").modal("hide")
+            toast.success(result.description)
+            setTimeout(()=>{
+                location.reload()
+            }, 3000)
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+</script>
+<%- include("../partials/footerEnd") %>

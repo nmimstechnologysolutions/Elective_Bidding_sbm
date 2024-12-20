@@ -1,0 +1,240 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+.pts-card{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 12px;
+    width: 200px;
+}
+
+.pts-card.success{
+    background-color: #16A34A;
+    color : #fff;
+    border: 0;
+}
+
+.pts-card.error{
+    background-color: #dc3545;
+    color : #fff;
+    border: 0;
+}
+
+.round-tab{
+    text-align: center;
+}
+
+.round-tab a{
+    color: #4B5563;
+}
+
+.round-tab.active{
+    background-color: var(--primary-color);
+    border-radius: 6px;
+}
+
+.round-tab.active a{
+    color: #fff;
+    font-weight: 500;
+}
+
+.accordion {
+    --bs-accordion-bg: #fff;
+    --bs-accordion-active-bg: #fff;
+    --bs-accordion-active-color: #000;
+    --bs-accordion-border-width: none;
+    --bs-accordion-body-padding-x: 0;
+    --bs-accordion-body-padding-y: 15px;
+    --bs-accordion-btn-focus-box-shadow: none;
+    --bs-accordion-btn-padding-x: 0;
+    --bs-accordion-btn-padding-y: 0;
+    --bs-accordion-btn-color: #000;
+}
+
+</style>
+
+<div class="content">
+    <div class="container-fluid d-flex flex-column p-0 h-100">
+        <div class="mb-3 d-flex justify-content-between align-items-center">
+            <h1 class="page-title">Add & Drop Round</h1>
+            <div class="card bg-danger-subtle border-0 p-2 px-3 mt-3 mt-sm-0">
+                <h1 class="m-0 d-flex align-items-center gap-2 fs-5 fw-semibold text-danger">
+                    <img class="time-img" src="/assets/icon_svgs/ClockOutline-1.svg" style="width: 24px; height: 24px;"
+                        alt="">
+                    02 : 12 : 39
+                </h1>
+            </div>
+        </div>
+
+        <div class="mb-2 card border-0 bg-body-secondary" style="width: fit-content;" >
+            <ul class="m-0 p-1 list-unstyled round-tabs d-flex">
+                <li class="round-tab active p-1">
+                    <a class="px-2 text-decoration-none m-font-sm" href="">Add & Drop Round I</a>
+                </li>
+                <li class="round-tab p-1">
+                    <a class="px-2 text-decoration-none m-font-sm" href="">Add & Drop Round II</a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="row px-3 d-none d-lg-flex gap-1 gap-lg-2 align-items-center">
+            <div class="card pts-card">
+                <h1 class="m-0 fs-6 fw-normal">Max Year Pts</h1>
+                <h1 class="m-0 fs-6 fw-medium">24 pts</h1>
+            </div>
+            <div class="card pts-card">
+                <h1 class="m-0 fs-6 fw-normal">Min Year Pts</h1>
+                <h1 class="m-0 fs-6 fw-medium">24 pts</h1>
+            </div>
+            <div class="card pts-card">
+                <h1 class="m-0 fs-6 fw-normal">Trim IV Selected</h1>
+                <h1 class="m-0 fs-6 fw-medium">9 pts</h1>
+            </div>
+            <div class="card pts-card">
+                <h1 class="m-0 fs-6 fw-normal">Trim V Selected</h1>
+                <h1 class="m-0 fs-6 fw-medium">0 pts</h1>
+            </div>
+            <div class="card pts-card">
+                <h1 class="m-0 fs-6 fw-normal">Trim VI Selected</h1>
+                <h1 class="m-0 fs-6 fw-medium">0 pts</h1>
+            </div>
+        </div>
+
+        <div class="row mt-4">
+            <div class="col-sm-12">
+                <div class="card p-3">
+                    <div class="accordion" id="accordionExample">
+                        <div class="accordion-item">
+                            <h2 class="accordion-header">
+                                <button class="accordion-button collapsed fs-6 fw-medium" type="button"
+                                    data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false"
+                                    aria-controls="collapseOne">
+                                    Confirmed Course List
+                                </button>
+                            </h2>
+                            <div id="collapseOne" class="accordion-collapse collapse"
+                                data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        <div class="col-12 col-lg-4">
+                                            <select id="confirmed-list-set-trimester">
+                                                <option value="" selected>Select Trimister</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-lg-4">
+                                            <select id="confirmed-list-set-area">
+                                                <option value="" selected>Select Area</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 col-lg-4">
+                                            <select id="confirmed-list-set-course">
+                                                <option value="" selected>Select Course</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row accordion-card-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row flex-grow-1 d-flex mt-2">
+            <!-- First Column -->
+            <div class="col-12 col-lg-6 px-3 d-flex flex-column flex-grow-1">
+                <!-- Card with flex-grow -->
+                <div class="card p-3 d-flex flex-column flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="m-0 fs-6">Confirm Course List</h1>
+                        <a href="#" role="button" class="event-btn-link" id="edit-course-list-btn">Edit</a>
+                    </div>
+                    <div class="row mt-1 d-none" id="edit-course-list-filters">
+                        <div class="col-12 col-lg-6">
+                            <select id="edit-list-set-trimester">
+                                <option value="" selected>Select Trimister</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <select id="edit-list-set-area">
+                                <option value="" selected>Select Area</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <select id="edit-list-set-course">
+                                <option value="" selected>Select Course</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row selected-course-card overflow-y-auto flex-grow-1">
+                        <!-- Dynamic content -->
+                    </div>
+                    <div class="mt-2 d-flex justify-content-end border-top d-none" id="confirm-list-div">
+                        <button class="mt-2 btn event-btn">Submit</button>
+                    </div>
+                </div>
+            </div>
+        
+            <!-- Second Column -->
+            <div class="col-12 col-lg-6 px-3 mt-4 mt-lg-0 d-flex flex-column flex-grow-1 available-course-card">
+                <div class="card p-3 d-flex flex-column flex-grow-1">
+                    <h1 class="fs-5 fw-medium">Winning Courses</h1>
+                    <div class="row mt-1">
+                        <div class="col-12 col-lg-6">
+                            <select id="set-trimester">
+                                <option value="" selected>Select Trimister</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <select id="set-area">
+                                <option value="" selected>Select Area</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <select id="set-course">
+                                <option value="" selected>Select Course</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-3 flex-grow-1 position-relative">
+                        <div class="position-absolute top-0 start-0 w-100 h-100">
+                            <div class="row course-list-card overflow-y-auto flex-grow-1"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<%- include("../partials/footer") %>
+
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+    
+    $("#confirmed-list-set-trimester").selectize()
+    $("#confirmed-list-set-area").selectize()
+    $("#confirmed-list-set-course").selectize()
+    
+    $("#set-trimester").selectize()
+    $("#set-area").selectize()
+    $("#set-course").selectize()
+    
+    $("#edit-list-set-trimester").selectize()
+    $("#edit-list-set-area").selectize()
+    $("#edit-list-set-course").selectize()
+    
+    $("#edit-course-list-btn").on("click", function(){
+        $("#edit-course-list-filters").toggleClass("d-none")
+        $("#confirm-list-div").toggleClass("d-none")
+    })
+    
+</script>
+
+<%- include("../partials/footerEnd") %>

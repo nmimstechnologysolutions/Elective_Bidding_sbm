@@ -1,0 +1,287 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<div class="content">
+
+    <% if (breadcrumbs && breadcrumbs.length > 1) { %>
+        <div class="breadcrumbs-container">
+            <ul class="breadcrumb">
+                <% breadcrumbs.forEach(crumb => { %>
+                    <li><a href="<%= crumb.url %>"><%= crumb.name %></a></li>
+                <% }); %>
+            </ul>
+        </div>
+    <% } %>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Manual Enrollment</h1>
+        <button class="btn event-btn" id="add-manual-enrollment-btn"  data-bs-toggle="modal" data-bs-target="#add-manual-enrollment-modal">Add Enrollment</button>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Student Name</th>
+                    <th>Course Name</th>
+                    <th>Division</th>
+                    <!-- <th>Action</th> -->
+                </tr>
+            </thead>
+            <tbody class="table-body" id="manualEnrollment-tbody">
+                <% if(manualEnrollmentList.length>0){ %>
+                    <% manualEnrollmentList.forEach((enrollment, idx) => { %>
+                        <tr>
+                            <td><%= (idx+1) %></td>
+                            <td><%= enrollment.student_name %></td>
+                            <td><%= enrollment.course_name %></td>
+                            <td><%= enrollment.division.trim() %></td>
+                            <!-- <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent ms-1" 
+                                        data-bs-toggle="modal" data-bs-target="#edit-enrollment-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent me-1"
+                                        data-bs-toggle="modal" data-bs-target="#delete-enrollment-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td> -->
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="4">No Enrollment Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="modal fade" id="add-manual-enrollment-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addEnrollmentLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-xl-down modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addEnrollmentLabel">Add Manual Enrollment</h1>
+                    <button type="button" class="btn-close" id="add-round-settings-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-2 d-flex flex-column gap-1">
+                        <label class="modal-label">Select Student</label>
+                        <select id="set-student">
+                            <option value="" selected>Select Student</option>
+                            <% studentsList.forEach(student => { %>
+                                <option 
+                                    value="<%= student.student_lid %>" 
+                                    data-concentration-id="<%= student.concentration_lid %>">
+                                    <%= student.student_name %> - <%= student.concentration_lid %>
+                                </option>
+                            <% }) %>
+                        </select>
+                    </div>
+
+                    <div class="mb-2 d-flex flex-column gap-1">
+                        <label class="modal-label">Select Round</label>
+                        <select id="add-drop-filter">
+                            <option value="" disabled selected>Select Round</option>
+                            <option value="1">Add</option>
+                            <option value="2">Drop</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-2 d-flex flex-column gap-1">
+                        <label class="modal-label">Select Course</label>
+                        <select id="set-course">
+                            <option value="" selected>Select Course</option>                            
+                        </select>
+                    </div>
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-manual-enrollment-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+    setActiveMenuItem(`<%- active %>`)
+    
+    $("#add-manual-enrollment-modal").on("show.bs.modal", function(){
+        const selectizeInstance = $("#set-student")[0].selectize;
+        if (selectizeInstance) {
+            selectizeInstance.destroy();
+        }
+
+        $("#set-student").selectize({
+            maxItems: 1,
+            create: false,
+            render: {
+                option: function (data, escape) {
+                    return (
+                        '<div class="option" data-concentration-id="' +
+                        escape(data.concentrationId) +
+                        '">' +
+                        escape(data.text) +
+                        "</div>"
+                    );
+                },
+                item: function (data, escape) {
+                    return (
+                        '<div class="item" data-concentration-id="' +
+                        escape(data.concentrationId) +
+                        '">' +
+                        escape(data.text) +
+                        "</div>"
+                    );
+                },
+            },
+            onInitialize: function () {
+                const self = this;
+                this.$input.find("option").each(function () {
+                    const $option = $(this);
+                    const concentrationId = $option.data("concentration-id");
+                    console.log("Processing option:", $option.val(), "Concentration ID:", concentrationId);
+                    if (concentrationId) {
+                        self.updateOption($option.val(), {
+                            ...self.options[$option.val()],
+                            concentrationId: concentrationId,
+                        });
+                    }
+                });
+            },
+            onChange: function (value) {
+                if (value) {
+                    const concentrationId = this.options[value]?.concentrationId;
+                    console.log("Selected concentration ID:", concentrationId);
+                }
+            },
+        });
+    })
+    
+
+    $("#add-drop-filter").selectize()
+    $("#set-course").selectize()
+
+    // const studentSelect = $("#set-student")[0].selectize
+
+    $("#add-drop-filter").on("change", function(){
+        const id = $(this).val()
+        const roundId = 9
+        const studentId = $("#set-student").val()
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/manual-enrollment/course-list",
+            data : {
+                id : id,
+                roundId : roundId,
+                studentId : studentId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            if (result && result.courseList) {
+                updateSelectCourseList(result.courseList);
+            } else {
+                console.error("courseList is not available in the result.");
+            }
+        }).catch(err => {
+            console.log(err)
+        })
+
+    })
+
+
+    $("#confirm-manual-enrollment-btn").on("click", function(){
+        const courseSelectize = $("#set-course")[0].selectize;
+        const divisionBatchId = courseSelectize.getValue();
+
+        // Check if a valid option is selected
+        let courseId = null;
+        let rowId = null;
+        if (divisionBatchId) {
+            const selectedOption = courseSelectize.options[divisionBatchId];
+            courseId = selectedOption?.courseId;
+            rowId = selectedOption?.rowId;
+        } else {
+            console.error("No valid course selected.");
+        }
+
+        // For #set-student (not Selectize enabled)
+        const studentId = $("#set-student").val();
+        const concentrationId = $("#set-student").find(":selected").data('concentrationId');
+        
+        // Other values
+        const addDrop = $("#add-drop-filter").val();
+        const roundId = 9;
+
+        // Confirm the values
+        console.log({ studentId, divisionBatchId, addDrop, courseId, concentrationId, rowId });
+
+        // Construct the API object
+        let ApiObj = {
+            type: "POST",
+            url: "/admin/manual-enrollment/add-enrollment",
+            data: {
+                id: rowId || null,
+                divBatchId: divisionBatchId,
+                studentId: studentId,
+                addDrop: addDrop,
+                roundId: roundId,
+                courseId: courseId,
+                concentrationId: concentrationId || null,
+                bidPoints: 0
+            },
+            datatype: JSON
+        };
+
+        console.log(ApiObj)
+
+        // Call API
+        // ajaxApi(ApiObj).then(result => {
+        //     console.log(result);
+        // }).catch(err => {
+        //     toast.error(err);
+        // });
+    })
+
+
+    function updateSelectCourseList(courseList){
+        // console.log(courseList)
+        const $select = $("#set-course").selectize()
+        const selectize = $select[0].selectize
+
+        selectize.clearOptions()
+
+        selectize.addOption({ value: "-1", text: "Select Courses", disabled: true })
+        
+        if (courseList.length > 0) {
+            courseList.forEach(course => {
+                selectize.addOption({
+                    value: course.division_batch_lid,
+                    text: `${course.course_name} - ${course.division}`,
+                    rowId: course.rowId,
+                    courseId: course.course_lid
+                })
+            })
+        } else {
+            selectize.addOption({ value: "", text: "No Courses Found", disabled: true })
+        }
+
+        selectize.refreshOptions(false)
+    }
+
+    
+
+</script>
+<%- include("../partials/footerEnd") %>

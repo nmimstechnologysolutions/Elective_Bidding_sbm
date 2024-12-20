@@ -1,0 +1,1169 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>    
+.remove-single{
+    color : #000 !important;
+    text-decoration: none !important;
+}
+</style>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Round Settings</h1>
+        <button 
+            class="btn event-btn" 
+            id="add-round-btn"
+            data-bs-toggle="modal" data-bs-target="#add-round-settings-modal"
+            <%= Array.isArray(preDefinedRoundList) && preDefinedRoundList.length > 0 ? '' : 'disabled' %>>
+            Add Round
+        </button>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Round Name</th>
+                    <th>Total Students</th>
+                    <th>Total Courses</th>
+                    <th>Start Date & Time</th>
+                    <th>End Date & Time</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-body" id="roundSettings-tbody">
+                <% if(roundSettingsList.length>0){ %>
+                    <% roundSettingsList.forEach((roundSettings, idx)=> { %>
+                        <tr>
+                            <td><%= (idx+1) %></td>
+                            <td><%= roundSettings.round_name %></td>
+                            <td><%= roundSettings.total_students %></td>
+                            <td><%= roundSettings.total_courses %></td>
+                            <td><%= roundSettings.start_date_time %></td>
+                            <td><%= roundSettings.end_date_time %></td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent ms-1 edit-round-settings-btn" 
+                                        id="edit-round-settings-btn"
+                                        data-round-id= "<%= roundSettings.round_lid %>"
+                                        data-bs-toggle="modal" data-bs-target="#edit-round-settings-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent me-1"
+                                        data-round-id = "<%= roundSettings.round_lid %>"
+                                        data-round-name = "<%= roundSettings.round_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-round-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="7">No Rounds Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="add-round-settings-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addRoundLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-xl-down modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addRoundLabel">Add Round</h1>
+                    <button type="button" class="btn-close" id="add-round-settings-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-2 d-flex flex-column gap-1">
+                        <label class="modal-label">Select Round Settings</label>
+                        <select id="set-round">
+                            <option value="" disabled selected>Select Round</option>
+                            <% preDefinedRoundList.forEach(round => { %>
+                                <option value="<%= round.id %>"><%= round.round_name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Set Students</label>
+                            <div class="w-100 d-flex align-items-center gap-2">
+                                <button class="col-6 btn btn-sm event-btn-outline" data-bs-toggle="modal" data-bs-target="#add-student-data-modal" data-bs-dismiss="modal">
+                                    <i class="fa fa-plus"></i>
+                                    Add
+                                </button>
+                                <span class="col-6 text-center" style="font-weight: 500;" id="add-round-settings-selected-students">0 Students</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-none flex-column gap-1" id="set-course-div">
+                            <label class="modal-label">Set Courses :</label>
+                            <div class="w-100 d-flex align-items-center gap-2">
+                                <button class="col-6 btn btn-sm event-btn-outline" data-bs-toggle="modal" data-bs-target="#add-course-data-modal" data-bs-dismiss="modal">
+                                    <i class="fa fa-plus"></i>
+                                    Add
+                                </button>
+                                <span class="col-6 text-center" style="font-weight: 500;" id="add-round-settings-selected-course" >0 Courses</span>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select Start Time</label>
+                            <input class="modal-input" type="datetime-local" id="round-start-date-time">
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select End Time :</label>
+                            <input class="modal-input" type="datetime-local" id="round-end-date-time">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-12 d-none flex-column gap-2" id="set-bid-points-div">
+                            <label class="modal-label">Set Bid Points</label>
+                            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
+                                <label class="switch">
+                                    <input type="checkbox" id="toggle-bid-points-checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                                <input class="ms-0 ms-sm-3 mt-3 mt-sm-0 flex-grow-1 modal-input d-none" id="set-bid-points" type="number" placeholder="Enter Bid Points">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-new-round-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Round Modal -->
+    <div class="modal fade" id="edit-round-settings-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editRoundLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen-xl-down modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editRoundLabel">Edit Round</h1>
+                    <button type="button" class="btn-close" id="edit-round-settings-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-2 d-flex flex-column gap-1">
+                        <label class="modal-label">Round Name</label>
+                        <p class="fs-6 mb-0" id="edit-round-name"></p>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Total Students</label>
+                            <div class="w-100 d-flex align-items-center gap-2">
+                                <button class="col-6 btn btn-sm event-btn-outline" data-bs-toggle="modal" data-bs-target="#edit-student-data-modal" data-bs-dismiss="modal">
+                                    <i class="fa fa-plus"></i>
+                                    Add
+                                </button>
+                                <span class="col-6 text-center" style="font-weight: 500;" id="edit-round-settings-selected-students">0 Students</span>
+                            </div>
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-none flex-column gap-1" id="edit-course-div">
+                            <label class="modal-label">Set Courses :</label>
+                            <div class="w-100 d-flex align-items-center gap-2">
+                                <button class="col-6 btn btn-sm event-btn-outline" data-bs-toggle="modal" data-bs-target="#edit-course-data-modal" data-bs-dismiss="modal">
+                                    <i class="fa fa-plus"></i>
+                                    Add
+                                </button>
+                                <span class="col-6 text-center" style="font-weight: 500;" id="edit-round-settings-selected-course" >0 Courses</span>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select Start Time</label>
+                            <input class="modal-input" type="datetime-local" id="edit-round-start-date-time">
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Select End Time :</label>
+                            <input class="modal-input" type="datetime-local" id="edit-round-end-date-time">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 col-12 d-none flex-column gap-2" id="edit-bid-points-div">
+                            <label class="modal-label">Set Bid Points</label>
+                            <div class="d-flex flex-column flex-sm-row align-items-start align-items-sm-center">
+                                <label class="switch">
+                                    <input type="checkbox" id="edit-toggle-bid-points-checkbox">
+                                    <span class="slider"></span>
+                                </label>
+                                <input class="ms-0 ms-sm-3 mt-3 mt-sm-0 flex-grow-1 modal-input d-none" id="edit-set-bid-points" type="number" placeholder="Enter Bid Points">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-edit-round-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Round Modal -->
+    <div class="modal fade" id="delete-round-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Round</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Delete Round?</p>
+                    <p class="fs-5 mb-0" id="delete-round-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-round-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Student Data Modal -->
+    <div class="modal fade" id="add-student-data-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addStudentDataLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addStudentDataLabel">Add Student Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 ">
+                    <div class="mb-4 row d-flex justify-content-between align-items-center">
+                        <p class="mb-0 col-12 col-md-6 mb-3 mb-md-0">Total Students : <span class="ms-1" style="font-weight: 600;"><%= studentsList.length %></span></p>
+                        <select class="col-12 col-md-6"  id="select-student">
+                            <option value="" selected disabled>Select Student</option>
+                            <% studentsList.forEach(student => { %> 
+                                <option value="<%= student.student_lid %>"><%= student.student_name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                
+                    <div class="card border-0 table-responsive">
+                        <table class="w-100">
+                            <thead>
+                                <tr class="table-head-row">
+                                    <th>
+                                        <input type="checkbox" id="select-all-student">
+                                    </th>
+                                    <th>Student Id</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Program Name</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body" id="student-data-table">
+                                <% studentsList.forEach(student => { %>
+                                    <tr data-student-id = "<%= student.student_lid %>">
+                                        <td>
+                                            <input type="checkbox" class="">
+                                        </td>
+                                        <td><%= student.sap_id %></td>
+                                        <td><%= student.student_name %></td>
+                                        <td><%= student.email %></td>
+                                        <td><%= student.program_name %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="fs-6 me-3">Total Selected Students : <span class="ms-1" id="selectedStudentCount" style="font-weight: 600;">0</span></span>
+                    <button type="button" class="btn event-btn" id="confirm-student-list-btn" data-bs-target="#add-round-settings-modal" data-bs-toggle="modal" data-bs-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Course Data Modal -->
+    <div class="modal fade" id="add-course-data-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addCourseDataLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="addCourseDataLabel">Add Course Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 ">
+                    <div class="mb-4 row d-flex justify-content-between align-items-center">
+                        <p class="mb-0 col-12 col-md-6 mb-3 mb-md-0">Total Courses : <span class="ms-1" style="font-weight: 600;"><%= courseList.length %></span></p>
+                        <select class="col-12 col-md-6"  id="select-course">
+                            <option value="" selected disabled>Select Course</option>
+                            <% courseList.forEach(course => { %> 
+                                <option value="<%= course.id %>"><%= course.course_name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                
+                    <div class="card border-0 table-responsive">
+                        <table class="w-100">
+                            <thead>
+                                <tr class="table-head-row">
+                                    <th>
+                                        <input type="checkbox" id="select-all-course">
+                                    </th>
+                                    <th>Course Id</th>
+                                    <th>Course Name</th>
+                                    <th>Credits</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body" id="course-data-table">
+                                <% courseList.forEach(course => { %>
+                                    <tr data-course-id = "<%= course.id %>">
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td><%= course.course_id %></td>
+                                        <td><%= course.course_name %></td>
+                                        <td><%= course.credits %></td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="fs-6 me-3">Total Selected Courses : <span class="ms-1" style="font-weight: 600;" id="selectedCourseCount">0</span></span>
+                    <button type="button" class="btn event-btn" id="confirm-course-list-btn" data-bs-target="#add-round-settings-modal" data-bs-toggle="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Data Modal -->
+    <div class="modal fade" id="edit-student-data-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="editStudentDataLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editStudentDataLabel">Edit Student Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"  aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 ">
+                    <div class="mb-4 row d-flex justify-content-between align-items-center">
+                        <p class="mb-0 col-12 col-md-6 mb-3 mb-md-0">Total Students : <span class="ms-1" style="font-weight: 600;"><%= studentsList.length %></span></p>
+                        <select class="col-12 col-md-6"  id="edit-select-student">
+                            <option value="" selected disabled>Select Student</option>
+                            <% studentsList.forEach(student => { %> 
+                                <option value="<%= student.student_lid %>"><%= student.student_name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                
+                    <div class="card border-0 table-responsive">
+                        <table class="w-100">
+                            <thead>
+                                <tr class="table-head-row">
+                                    <th>
+                                        <input type="checkbox" id="edit-select-all-student">
+                                    </th>
+                                    <th>Student Id</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Program Name</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body" id="edit-student-data-table">
+                                <!-- <% studentsList.forEach(student => { %>
+                                    <tr data-student-id = "<%= student.student_lid %>">
+                                        <td>
+                                            <input type="checkbox" class="">
+                                        </td>
+                                        <td><%= student.sap_id %></td>
+                                        <td><%= student.student_name %></td>
+                                        <td><%= student.email %></td>
+                                        <td><%= student.program_name %></td>
+                                    </tr>
+                                <% }) %> -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="fs-6 me-3">Total Selected Students : <span class="ms-1" id="editSelectedStudentCount" style="font-weight: 600;">0</span></span>
+                    <button type="button" class="btn event-btn" id="edit-confirm-student-list-btn" data-bs-target="#edit-round-settings-modal" data-bs-toggle="modal" data-bs-dismiss="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Course Data Modal -->
+    <div class="modal fade" id="edit-course-data-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="addCourseDataLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content ">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="editCourseDataLabel">Edit Course Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 ">
+                    <div class="mb-4 row d-flex justify-content-between align-items-center">
+                        <p class="mb-0 col-12 col-md-6 mb-3 mb-md-0">Total Courses : <span class="ms-1" style="font-weight: 600;"><%= courseList.length %></span></p>
+                        <select class="col-12 col-md-6"  id="edit-select-course">
+                            <option value="" selected disabled>Select Course</option>
+                            <% courseList.forEach(course => { %> 
+                                <option value="<%= course.id %>"><%= course.course_name %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                
+                    <div class="card border-0 table-responsive">
+                        <table class="w-100">
+                            <thead>
+                                <tr class="table-head-row">
+                                    <th>
+                                        <input type="checkbox" id="edit-select-all-course">
+                                    </th>
+                                    <th>Course Id</th>
+                                    <th>Course Name</th>
+                                    <th>Credits</th>
+                                </tr>
+                            </thead>
+                            <tbody class="table-body" id="edit-course-data-table">
+                                <!-- <% courseList.forEach(course => { %>
+                                    <tr data-course-id = "<%= course.id %>">
+                                        <td>
+                                            <input type="checkbox">
+                                        </td>
+                                        <td><%= course.course_id %></td>
+                                        <td><%= course.course_name %></td>
+                                        <td><%= course.credits %></td>
+                                    </tr>
+                                <% }) %> -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span class="fs-6 me-3">Total Selected Courses : <span class="ms-1" style="font-weight: 600;" id="editSelectedCourseCount">0</span></span>
+                    <button type="button" class="btn event-btn" id="edit-confirm-course-list-btn" data-bs-target="#edit-round-settings-modal" data-bs-toggle="modal">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+
+    const studentsList = JSON.parse('<%- JSON.stringify(studentsList).replace(/'/g, "\\'") %>')
+    const courseList = JSON.parse('<%- JSON.stringify(courseList).replace(/'/g, "\\'") %>')
+
+    let selectedStudentListRoundSetting = []
+    let selectedCourseListRoundSettings = []
+
+    let editSelectedStudentListRoundSetting = []
+    let editSelectedCourseListRoundSetting = []
+
+    $("#set-round").selectize()    
+    $("#select-student").selectize({
+        plugins: ["remove_button"],
+    })
+
+    $("#edit-select-student").selectize({
+        plugins: ["remove_button"],
+    })
+
+    $("#select-course").selectize({
+        plugins: ["remove_button"],
+    })
+    
+    $("#edit-select-course").selectize({
+        plugins: ["remove_button"],
+    })
+    
+    // 
+    // Add RoundSettings 
+    // 
+
+    $('#add-student-data-modal').on('hidden.bs.modal', function () {
+        $('#add-round-settings-modal').modal('show')
+    })
+
+    $('#add-course-data-modal').on('hidden.bs.modal', function () {
+        $('#add-round-settings-modal').modal('show')
+    })
+
+    $("#edit-student-data-modal").on("hidden.bs.modal", function(){
+        $("#edit-round-settings-modal").modal('show')
+    })
+    
+    $('#toggle-bid-points-checkbox').on('change', function() {
+        $('#set-bid-points').toggleClass('d-none')
+    })
+
+    $("#set-round").on("change", function(){
+        const roundSettingsId = $(this).val()
+        
+        // $("#student-data-table").empty()
+
+        $("#set-course-div").toggleClass("d-flex", roundSettingsId == 1)
+        .toggleClass("d-none", roundSettingsId != 1)
+
+        $("#set-bid-points-div").toggleClass("d-flex", roundSettingsId == 2 || roundSettingsId == 4)
+        .toggleClass("d-none", roundSettingsId != 2 && roundSettingsId != 4)
+
+    })
+
+
+    
+    $("#confirm-new-round-btn").on("click", function(){
+
+        const roundSettingsId = $("#set-round").val()
+        const roundSettingsName = $("#set-round").text()
+        const roundStartDateTime =  $("#round-start-date-time").val().replace("T", " ")
+        const roundEndDateTime = $("#round-end-date-time").val().replace("T", " ")
+        const roundBidPoints = $("#set-bid-points").val() || 0
+        const roundStudentsCount = selectedStudentListRoundSetting.length
+        const roundCourseCount = selectedCourseListRoundSettings.length
+        const roundStudentList = selectedStudentListRoundSetting
+        const roundCourseList = selectedCourseListRoundSettings
+        const roundDivBatchList = []
+        const roundBidPointsToggleInput = $("#toggle-bid-points-checkbox").prop("checked") ? 1 : 0
+
+
+        const roundSettings = {
+            round_id : roundSettingsId,
+            round_name : roundSettingsName,
+            total_students : roundStudentsCount,
+            total_courses : roundCourseCount,
+            start_date_time : roundStartDateTime,
+            end_date_time : roundEndDateTime,
+            student_list : roundStudentList,
+            course_list : roundCourseList,
+            div_batch_list : roundDivBatchList,
+            is_bid_limit : roundBidPointsToggleInput,
+            bid_limit : roundBidPoints,
+        }
+
+        // console.log(roundSettings)
+
+        const inputJSON = {
+            round_setting : [roundSettings]
+        }
+        
+
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/round-settings/add-round-settings",
+            data : {
+                roundSettings : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            $("#add-round-settings-modal").modal('hide')
+            updateRoundSettingsTable(result.data.round_list)
+            toast.success(result.description)
+            emptyAllAddRoundModalInputs()
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+    })
+
+    //
+    // Re Render Round Settings Table After Add / Delete
+    //
+    function updateRoundSettingsTable(roundSettingsList) {
+        // console.log(roundSettingsList)
+        const tableBody = document.querySelector("#roundSettings-tbody")
+        tableBody.innerHTML = "" // Clear existing rows
+
+        if (roundSettingsList.length > 0) {
+            roundSettingsList.forEach((roundSettings, idx) => {
+                const row = document.createElement("tr")
+                row.innerHTML = `
+                    <td>${idx + 1}</td>
+                    <td>${roundSettings.round_name}</td>
+                    <td>${roundSettings.total_students}</td>
+                    <td>${roundSettings.total_courses}</td>
+                    <td>${roundSettings.start_date_time}</td>
+                    <td>${roundSettings.end_date_time}</td>
+                    <td>
+                        <div class="d-flex justify-content-center align-items-center gap-3 edit-round-settings-btn">
+                            <button class="border-0 bg-transparent ms-1" 
+                                data-round-id="${roundSettings.round_lid}"
+                                data-bs-toggle="modal" data-bs-target="#edit-division-batch-modal">
+                                <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                            </button>
+                            <button class="border-0 bg-transparent me-1"
+                                data-round-id="${roundSettings.round_lid}"
+                                data-round-name="${roundSettings.round_name}"
+                                data-bs-toggle="modal" data-bs-target="#delete-round-modal">
+                                <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                            </button>
+                        </div>
+                    </td>
+                `
+                tableBody.appendChild(row)
+            })
+
+        } else {
+            // Show a message if no data is available
+            const noDataRow = document.createElement("tr")
+            noDataRow.innerHTML = `<td colspan="7">No Rounds Data</td>`
+            tableBody.appendChild(noDataRow)
+        }
+    }
+
+    
+    // 
+    // Add Students Data
+    // 
+    $("#select-student").on("change", function(){
+        const studentId = $(this).val()
+        
+        // const studentsList = JSON.parse('<%- JSON.stringify(studentsList).replace(/'/g, "\\'") %>')
+        // console.log(studentsList)
+        const selectedStudent = studentsList.find(student => student.student_lid == studentId)
+        
+        if (selectedStudent) {
+            $("#student-data-table").html(`
+                <tr data-student-id = "${selectedStudent.student_lid}">
+                    <td><input type="checkbox" ${selectedStudentListRoundSetting.includes(selectedStudent.student_lid) ? "checked" : ""} ></td>
+                    <td>${selectedStudent.sap_id}</td>
+                    <td>${selectedStudent.student_name}</td>
+                    <td>${selectedStudent.email}</td>
+                    <td>${selectedStudent.program_name}</td>
+                </tr>
+            `);
+        } else {
+            let fullTableContent = studentsList.map(student => `
+                <tr data-student-id = "${student.student_lid}">
+                    <td><input type="checkbox" ${selectedStudentListRoundSetting.includes(student.student_lid) ? "checked" : ""}></td>
+                    <td>${student.sap_id}</td>
+                    <td>${student.student_name}</td>
+                    <td>${student.email}</td>
+                    <td>${student.program_name}</td>
+                </tr>
+            `).join("")
+
+            $("#student-data-table").html(fullTableContent)
+            updateStudentSelectAllCheckbox()
+        }
+
+    })
+
+    function updateStudentSelectAllCheckbox() {
+        const allChecked = $("#student-data-table input[type='checkbox']").length === $("#student-data-table input[type='checkbox']:checked").length
+        $("#select-all-student").prop("checked", allChecked);
+    }
+
+    function updateSelectedStudentArray(studentId, isChecked){
+        if(isChecked){
+            if(!selectedStudentListRoundSetting.includes(studentId)){
+                selectedStudentListRoundSetting.push(studentId)
+            }
+        }else{
+            selectedStudentListRoundSetting = selectedStudentListRoundSetting.filter(id => id!==studentId)
+        }
+        $("#selectedStudentCount").text(selectedStudentListRoundSetting.length)
+    }
+
+
+    $("#select-all-student").on("change", function(){
+        const isChecked = $(this).is(":checked")
+
+        $("#student-data-table input[type='checkbox']").prop("checked", isChecked)
+
+        $("#student-data-table input[type='checkbox']").each(function(){
+            const studentId = $(this).closest("tr").data("student-id")
+            updateSelectedStudentArray(studentId, isChecked)
+        })
+    })
+
+    $("#student-data-table").on("change", "input[type='checkbox']", function(){
+        const studentId = $(this).closest("tr").data("student-id")
+        const isChecked = $(this).is(":checked")
+
+        updateSelectedStudentArray(studentId, isChecked)
+
+        updateStudentSelectAllCheckbox()
+    })
+
+    $("#confirm-student-list-btn").on("click", function(){
+        $("#add-round-settings-selected-students").text(`${selectedStudentListRoundSetting.length} students`)
+        // console.log(selectedStudentListRoundSetting)
+    })
+
+
+    // 
+    // Add Course Data 
+    // 
+    $("#select-course").on("change", function() {
+        const courseId = $(this).val()
+        // const courseList = JSON.parse('<%- JSON.stringify(courseList).replace(/'/g, "\\'") %>')
+        const selectedCourse = courseList.find(course => course.id == courseId)
+
+        // Display only the selected course or the full list
+        if (selectedCourse) {
+            $("#course-data-table").html(`
+                <tr data-course-id="${selectedCourse.id}">
+                    <td><input type="checkbox" ${selectedCourseListRoundSettings.includes(selectedCourse.id) ? "checked" : ""}></td>
+                    <td>${selectedCourse.course_id}</td>
+                    <td>${selectedCourse.course_name}</td>
+                    <td>${selectedCourse.credits}</td>
+                </tr>
+            `)
+        } else {
+            const fullCourseTableContent = courseList.map(course => `
+                <tr data-course-id="${course.id}">
+                    <td><input type="checkbox" ${selectedCourseListRoundSettings.includes(course.id) ? "checked" : ""}></td>
+                    <td>${course.course_id}</td>
+                    <td>${course.course_name}</td>
+                    <td>${course.credits}</td>
+                </tr>
+            `).join("")
+            $("#course-data-table").html(fullCourseTableContent)
+        }
+        updateCourseSelectAllCheckbox()
+    })
+
+    function updateCourseSelectAllCheckbox() {
+        const allChecked = $("#course-data-table input[type='checkbox']").length === $("#course-data-table input[type='checkbox']:checked").length
+        $("#select-all-course").prop("checked", allChecked)
+    }
+    
+    function updateSelectedCourseArray(courseId, isChecked) {
+        if (isChecked) {
+            if (!selectedCourseListRoundSettings.includes(courseId)) {
+                selectedCourseListRoundSettings.push(courseId)
+            }
+        } else {
+            selectedCourseListRoundSettings = selectedCourseListRoundSettings.filter(id => id !== courseId)
+        }
+        $("#selectedCourseCount").text(selectedCourseListRoundSettings.length)
+    }
+
+    $("#select-all-course").on("change", function() {
+        const isChecked = $(this).is(":checked");
+
+        $("#course-data-table input[type='checkbox']").prop("checked", isChecked)
+        $("#course-data-table input[type='checkbox']").each(function() {
+            const courseId = $(this).closest("tr").data("course-id")
+            updateSelectedCourseArray(courseId, isChecked)
+        })
+    })
+
+    $("#course-data-table").on("change", "input[type='checkbox']", function() {
+        const courseId = $(this).closest("tr").data("course-id")
+        const isChecked = $(this).is(":checked")
+
+        updateSelectedCourseArray(courseId, isChecked)
+
+        updateCourseSelectAllCheckbox()
+    })
+
+    $("#confirm-course-list-btn").on("click", function() {
+        $("#add-round-settings-selected-course").text(`${selectedCourseListRoundSettings.length} courses`)
+        $("#selectedCourseCount").text(selectedCourseListRoundSettings.length)
+    })
+
+
+    // 
+    // Empty all inputs from add RoundSettings Modal
+    // 
+    $("#add-round-settings-close-btn").on("click", emptyAllAddRoundModalInputs())
+
+    function emptyAllAddRoundModalInputs(){
+        $("#set-round")[0].selectize.clear()
+        $("#set-bid-points").val("")
+        selectedStudentListRoundSetting = []
+        selectedCourseListRoundSettings = []
+        $("#round-start-date-time").val('')
+        $("#round-end-date-time").val('')
+        $("#set-bid-points").val('')
+        $("#add-round-settings-selected-students").text("0 students")
+        $("#add-round-settings-selected-course").text("0 courses")
+        
+        $("#student-data-table input[type='checkbox']").prop("checked", false)
+        $("#course-data-table input[type='checkbox']").prop("checked", false)
+
+        $("#select-all-student").prop("checked", false)
+        $("#selectedStudentCount").text(0)
+        $("#select-all-course").prop("checked", false)
+    }
+
+    
+
+    // 
+    // Delete Round 
+    // 
+    $("#delete-round-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const roundSettingsId = btn.getAttribute("data-round-id")
+        const roundSettingsName = btn.getAttribute("data-round-name")
+
+        $("#delete-round-name").text(roundSettingsName)
+        $("#confirm-delete-round-btn").attr("data-round-id", roundSettingsId)
+    })
+
+    $("#confirm-delete-round-btn").on("click", function(){
+        const roundSettingsId = $(this).attr('data-round-id')
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/round-settings/delete-round-settings",
+            data : {
+                roundSettingsId : roundSettingsId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            // console.log(result)
+            $("#delete-round-modal").modal("hide")
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+        
+    })
+
+    
+
+    //
+    // Edit Round Settings 
+    //
+
+    // $("#edit-round-settings-modal").on("show.bs.modal", function(event){
+    $(".edit-round-settings-btn").on("click", function(event){
+        // const btn = event.relatedTarget
+        // const roundId = btn.getAttribute('data-round-id')
+        const roundId = $(this).attr('data-round-id')
+        // console.log(roundId)
+        let AjaxObj = {
+            type : "POST",
+            url : "/admin/round-settings/data-round-settings",
+            data : {
+                roundId : roundId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(AjaxObj).then(result => {
+        
+            const roundDetails = result.roundDetails
+            const roundStudentList = result.roundStudentList
+            const roundCourseList = result.roundCourseList
+
+            // console.log("roundDetails>>>", roundDetails)
+            $("#confirm-edit-round-btn").attr('data-id', roundDetails.id)
+            $("#confirm-edit-round-btn").attr('data-round-id', roundDetails.round_lid)
+
+            $("#edit-round-name").text(roundDetails.round_name)
+            $("#edit-round-settings-selected-students").text(result.roundStudentList.length + " students")
+            $("#edit-round-settings-selected-course").text(result.roundCourseList.length + " courses")
+            $("#edit-round-start-date-time").val(new Date(roundDetails.start_date_time).toISOString().slice(0, 16))
+            $("#edit-round-end-date-time").val(new Date(roundDetails.end_date_time).toISOString().slice(0, 16))
+            
+            $("#edit-course-div").toggleClass("d-flex", roundId == 1)
+            .toggleClass("d-none", roundId != 1)
+
+            $("#edit-bid-points-div").toggleClass("d-flex", roundId == 2 || roundId == 4)
+            .toggleClass("d-none", roundId != 2 && roundId != 4)
+        
+            const isBidLimitOn = roundDetails.is_bid_limit === 1
+            $("#edit-toggle-bid-points-checkbox").prop("checked", isBidLimitOn)
+
+            if (isBidLimitOn) {
+                $("#edit-set-bid-points").val(roundDetails.bid_limit).removeClass("d-none")
+            } else {
+                $("#edit-set-bid-points").val(roundDetails.bid_limit).addClass("d-none")
+            }
+
+            editRenderStudentList(roundStudentList)
+            editRenderCourseList(roundCourseList)
+
+        }).catch(err => {
+            console.log(err.message)
+        })
+    })
+    
+    function editRenderStudentList(editStudentList) {
+        editSelectedStudentListRoundSetting = editStudentList.map(student => student.student_lid);
+
+        const tableContent = studentsList.map(student => `
+            <tr data-student-id="${student.student_lid}">
+                <td><input type="checkbox" ${editSelectedStudentListRoundSetting.includes(student.student_lid) ? "checked" : ""}></td>
+                <td>${student.sap_id}</td>
+                <td>${student.student_name}</td>
+                <td>${student.email}</td>
+                <td>${student.program_name}</td>
+            </tr>
+        `).join("");
+
+        $("#edit-student-data-table").html(tableContent);
+        editUpdateStudentSelectAllCheckbox();
+
+        // Update selected student count display
+        $("#editSelectedStudentCount").text(editSelectedStudentListRoundSetting.length);
+        $("#edit-round-settings-selected-students").text(editSelectedStudentListRoundSetting.length + " students");
+    }
+
+    function editUpdateStudentSelectAllCheckbox() {
+        const allChecked = $("#edit-student-data-table input[type='checkbox']").length === $("#edit-student-data-table input[type='checkbox']:checked").length;
+        $("#edit-select-all-student").prop("checked", allChecked);
+    }
+
+    function editUpdateSelectedStudentArray(studentId, isChecked) {
+        if (isChecked) {
+            if (!editSelectedStudentListRoundSetting.includes(studentId)) {
+                editSelectedStudentListRoundSetting.push(studentId);
+            }
+        } else {
+            editSelectedStudentListRoundSetting = editSelectedStudentListRoundSetting.filter(id => id !== studentId);
+        }
+        $("#editSelectedStudentCount").text(editSelectedStudentListRoundSetting.length);
+    }
+
+    $("#edit-select-student").on("change", function() {
+        const studentId = $(this).val();
+        const selectedStudent = studentsList.find(student => student.student_lid == studentId);
+
+        if (selectedStudent) {
+            $("#edit-student-data-table").html(`
+                <tr data-student-id="${selectedStudent.student_lid}">
+                    <td><input type="checkbox" ${editSelectedStudentListRoundSetting.includes(selectedStudent.student_lid) ? "checked" : ""}></td>
+                    <td>${selectedStudent.sap_id}</td>
+                    <td>${selectedStudent.student_name}</td>
+                    <td>${selectedStudent.email}</td>
+                    <td>${selectedStudent.program_name}</td>
+                </tr>
+            `);
+        } else {
+            editRenderStudentList(editSelectedStudentListRoundSetting.map(id => studentsList.find(student => student.student_lid == id)));
+        }
+    });
+
+    $("#edit-select-all-student").on("click", function() {
+        const isChecked = $(this).is(":checked");
+        $("#edit-student-data-table input[type='checkbox']").prop("checked", isChecked);
+
+        $("#edit-student-data-table input[type='checkbox']").each(function() {
+            const studentId = $(this).closest("tr").data("student-id");
+            editUpdateSelectedStudentArray(studentId, isChecked);
+        });
+    });
+
+    $("#edit-student-data-table").on("change", "input[type='checkbox']", function() {
+        const studentId = $(this).closest("tr").data("student-id");
+        const isChecked = $(this).is(":checked");
+
+        editUpdateSelectedStudentArray(studentId, isChecked);
+        editUpdateStudentSelectAllCheckbox();
+    });
+
+    $("#edit-confirm-student-list-btn").on("click", function() {
+        $("#edit-round-settings-selected-students").text(`${editSelectedStudentListRoundSetting.length} students`)
+        // console.log("Selected students:", editSelectedStudentListRoundSetting);
+    })
+    
+    
+    function editRenderCourseList(editCourseList){
+        editSelectedCourseListRoundSetting = editCourseList.map(course => course.id)
+
+        // console.log(courseList)
+        const tableContent = courseList.map(course => `
+            <tr data-course-id="${course.id}">
+                <td>
+                    <input type="checkbox" ${editSelectedCourseListRoundSetting.includes(course.id) ? "checked" : ""}>
+                </td>
+                <td>${course.course_id}</td>
+                <td>${course.course_name}</td>
+                <td>${course.credits}</td>
+            </tr>
+        `).join("")
+
+        // Update the table content
+        $("#edit-course-data-table").html(tableContent)
+
+        editUpdateCourseSelectAllCheckbox()
+
+        // Update selected course count display
+        $("#editSelectedCourseCount").text(editSelectedCourseListRoundSetting.length)
+        $("#edit-round-settings-selected-course").text(editSelectedCourseListRoundSetting.length + " courses")   
+    }
+
+    function editUpdateCourseSelectAllCheckbox() {
+        const allChecked = $("#edit-course-data-table input[type='checkbox']").length === $("#edit-course-data-table input[type='checkbox']:checked").length
+        $("#edit-select-all-course").prop("checked", allChecked);
+    }
+
+    function editUpdateSelectedCourseArray(courseId, isChecked){
+        if(isChecked){
+            if(!editSelectedCourseListRoundSetting.includes(courseId)){
+                editSelectedCourseListRoundSetting.push(courseId)
+            }
+        }else{
+            editSelectedCourseListRoundSetting = editSelectedCourseListRoundSetting.filter(id => id!==courseId)
+        }
+        $("#editSelectedCourseCount").text(editSelectedCourseListRoundSetting.length)
+    }
+
+    $("#edit-select-course").on("change", function(){
+        const courseId = $(this).val()
+        // console.log(courseId)
+        
+        // const courseList = JSON.parse('<%- JSON.stringify(courseList).replace(/'/g, "\\'") %>')
+
+        const selectedCourse = courseList.find(course => course.id == courseId)
+        
+        if (selectedCourse) {
+            $("#edit-course-data-table").html(`
+                <tr data-course-id = "${selectedCourse.id}">
+                    <td><input type="checkbox" ${editSelectedCourseListRoundSetting.includes(selectedCourse.id) ? "checked" : ""} ></td>
+                    <td>${selectedCourse.course_id}</td>
+                    <td>${selectedCourse.course_name}</td>
+                    <td>${selectedCourse.credits}</td>
+                </tr>
+            `);
+        } else {
+            let fullTableContent = courseList.map(course => `
+                <tr data-course-id = "${course.id}">
+                    <td><input type="checkbox" ${editSelectedCourseListRoundSetting.includes(course.id) ? "checked" : ""}></td>
+                    <td>${course.course_id}</td>
+                    <td>${course.course_name}</td>
+                    <td>${course.credits}</td>
+                </tr>
+            `).join("")
+
+            $("#edit-course-data-table").html(fullTableContent)
+            editUpdateCourseSelectAllCheckbox()
+        }
+
+    })
+
+    $("#edit-course-all-student").on("click", function(){
+        const isChecked = $(this).is(":checked")
+
+        $("#edit-course-data-table input[type='checkbox']").prop("checked", isChecked)
+
+        $("#edit-course-data-table input[type='checkbox']").each(function(){
+            const courseId = $(this).closest("tr").data("course-id")
+            editUpdateSelectedCourseArray(courseId, isChecked)
+        })
+    })
+
+    $("#edit-course-data-table").on("change", "input[type='checkbox']", function(){
+        const courseId = $(this).closest("tr").data("course-id")
+        const isChecked = $(this).is(":checked")
+
+        editUpdateSelectedCourseArray(courseId, isChecked)
+        editUpdateCourseSelectAllCheckbox()
+    })
+
+    $("#edit-select-all-course").on("change", function() {
+        const isChecked = $(this).is(":checked");
+
+        $("#edit-course-data-table input[type='checkbox']").prop("checked", isChecked)
+        $("#edit-course-data-table input[type='checkbox']").each(function() {
+            const courseId = $(this).closest("tr").data("course-id")
+            editUpdateSelectedCourseArray(courseId, isChecked)
+        })
+    })
+    
+    $("#edit-confirm-course-list-btn").on("click", function(){
+        $("#edit-round-settings-selected-course").text(`${editSelectedCourseListRoundSetting.length} courses`)
+        $("#editSelectedCourseCount").text(editSelectedCourseListRoundSetting.length)
+    })
+
+    $("#edit-toggle-bid-points-checkbox").on("change", function() {
+        if (this.checked) {
+            $("#edit-set-bid-points").removeClass("d-none");
+        } else {
+            $("#edit-set-bid-points").addClass("d-none");
+        }
+    })
+
+    $("#confirm-edit-round-btn").on("click", function(){
+
+        const roundSettingsId = $(this).attr('data-id')
+        const roundSettingsRoundId = $(this).attr('data-round-id')
+        const roundStartDateTime =  $("#edit-round-start-date-time").val().replace("T", " ").concat(':00.000')
+        const roundEndDateTime = $("#edit-round-end-date-time").val().replace("T", " ").concat(':00.000')
+        const roundBidPoints = $("#edit-set-bid-points").val() || 0
+        const roundStudentsCount = editSelectedStudentListRoundSetting.length
+        const roundCourseCount = editSelectedCourseListRoundSetting.length
+        const roundStudentList = editSelectedStudentListRoundSetting
+        const roundCourseList = editSelectedCourseListRoundSetting
+        const roundDivBatchList = []
+        const roundBidPointsToggleInput = $("#edit-toggle-bid-points-checkbox").prop("checked") ? 1 : 0
+
+        // console.log("roundBidPointsToggleInput>>",roundBidPointsToggleInput)
+
+        const updateRoundSettings = {
+            id : roundSettingsId,
+            round_id: roundSettingsRoundId,
+            total_students: roundStudentList.length,
+            total_courses: roundCourseList.length,
+            start_date_time: roundStartDateTime,
+            end_date_time: roundEndDateTime,
+            student_list: roundStudentList,
+            course_list: roundCourseList,
+            div_batch_list: roundDivBatchList,
+            bid_limit: roundBidPoints,
+            is_bid_limit: roundBidPointsToggleInput
+        }
+
+        // console.log(updateRoundSettings)
+
+
+        const updateRoundDetails = {
+            round_setting : updateRoundSettings
+        }
+
+        let AjaxObj = {
+            type : "POST",
+            url : "/admin/round-settings/update-round-settings",
+            data : {
+                inputJSON : JSON.stringify(updateRoundDetails)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(AjaxObj).then(result => {
+            // console.log(result)
+            toast.success(result.description)
+            $("#edit-round-settings-modal").modal("hide")
+
+            editSelectedCourseListRoundSetting = []
+            editSelectedStudentListRoundSetting = []
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+    })
+
+
+
+</script>
+<%- include("../partials/footerEnd") %>

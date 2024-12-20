@@ -1,0 +1,415 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Bidding Sessions</h1>
+        <button class="btn event-btn" id="add-session-btn"  data-bs-toggle="modal" data-bs-target="#add-session-modal">Add Bidding Session</button>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Bidding Session Name</th>
+                    <th>Acad Sessions</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Total Students</th>
+                    <th>Total Courses</th>
+                    <th>Min Yearly <br> Credits</th>
+                    <th>Max Yearly <br> Credits</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(biddingSessionList.length > 0){ %>
+                    <% biddingSessionList.forEach((biddingSession, idx) => { %>
+                        <tr>    
+                            <td><%= (idx+1) %></td>
+                            <td class="text-capitalize"><%= biddingSession.biddingName %></td>
+                            <td>
+                                <div class="d-flex flex-column gap-2">
+                                    <%
+                                        if(biddingSession.acad_sessions_and_ids){
+                                            let sessions = biddingSession.acad_sessions_and_ids.split(',')
+                                            sessions.forEach(session => {
+                                                let sessionName = session.split(':')[0]
+                                    %>
+                                        <span class="table-badge"><%= sessionName %></span>
+                                    <% })
+                                    } %>
+                                </div>
+                            </td>
+                            <td><%= biddingSession.start_date %></td>
+                            <td><%= biddingSession.end_date %></td>
+                            <td><%= biddingSession.student_count ? biddingSession.student_count : '-' %></td>
+                            <td><%= biddingSession.course_count ? biddingSession.course_count : '-'  %></td>
+                            <td><%= biddingSession.max_credits ? biddingSession.max_credits : '-' %></td>
+                            <td><%= biddingSession.min_credits ? biddingSession.min_credits : '-' %></td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent ms-1" 
+                                        data-bidding-session-id = "<%= biddingSession.id %>"
+                                        data-bidding-session-name = "<%= biddingSession.biddingName %>"
+                                        data-bidding-session-start-date = "<%= biddingSession.start_date %>"
+                                        data-bidding-session-end-date = "<%= biddingSession.end_date %>"
+                                        data-bidding-session-acad-session-list = "<%= biddingSession.acad_sessions_and_ids %>"    
+                                        data-bs-toggle="modal" data-bs-target="#edit-session-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent me-1" 
+                                        data-bidding-session-id = "<%= biddingSession.id %>"
+                                        data-bidding-session-name = "<%= biddingSession.biddingName %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-session-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>    
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="10">No Bidding Sessions Data</td>
+                    </tr
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+  
+    <!-- Modal -->
+    <div class="modal fade" id="add-session-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add New Bidding Session</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label" >Bidding Session Name</label>
+                        <input class="modal-input" id="session-name"  type="text" placeholder="Enter Bidding Session Name">
+                        <span class="text-danger" id="session-name-text" style="font-size: 12px; display: none;">Bidding Name Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label" >Academic Year</label>
+                        <select id="acad-year">
+                            <option value="" selected>Select Academic Year</option>
+                            <%  const currentYear = new Date().getFullYear()
+                                for (let i = 0; i < 3; i++) {
+                                    const year = currentYear + i;
+                            %>
+                                <option value="<%= year %>"><%= year %></option>
+                            <% } %> 
+                        </select>
+                        <span class="text-danger" id="acad-year-text" style="font-size: 12px; display: none;">Academic Year Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label" >Start Date</label>
+                        <input class="modal-input" id="start-date" type="date">
+                        <span class="text-danger" id="start-date-text" style="font-size: 12px; display: none;">Start Date Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label" >End Date</label>
+                        <input class="modal-input" id="end-date" type="date">
+                        <span class="text-danger" id="end-date-text" style="font-size: 12px; display: none;">End Date Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label">Acad Sessions</label>
+                        <select class="" multiple id="acad-sessions" placeholder="Select Acad Sessions">
+                            <option value="">Select Academic Sessions</option>
+                            <optgroup label="Trimister">
+                                <% acadSessionList.forEach(acadSession => { %>
+                                    <option value="<%= acadSession.id %>"><%= acadSession.acad_session %></option>
+                                <% }) %>
+                            </optgroup>
+                        </select>
+                        <span class="text-danger" id="acad-sessions-text" style="font-size: 12px; display: none;">Acad Session Required *</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="save-bidding-btn">Add New Bidding Session</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <div class="modal fade" id="edit-session-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Bidding Session</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label" >Bidding Session Name</label>
+                        <input class="modal-input" id="edit-session-name"  type="text" placeholder="Enter Bidding Session Name">
+                        <span class="text-danger" id="session-name-text" style="font-size: 12px; display: none;">Bidding Name Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label" >Start Date</label>
+                        <input class="modal-input" id="edit-start-date" type="date">
+                        <span class="text-danger" id="edit-start-date-text" style="font-size: 12px; display: none;">Start Date Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label" >End Date</label>
+                        <input class="modal-input" id="edit-end-date" type="date">
+                        <span class="text-danger" id="end-date-text" style="font-size: 12px; display: none;">End Date Required *</span>
+                    </div>
+                    <div class="mt-3 d-flex flex-column gap-1">
+                        <label class="modal-label">Acad Sessions</label>
+                        <select class="" multiple id="edit-acad-sessions" placeholder="Select Acad Sessions">
+                            <option value="">Select Academic Sessions</option>
+                            <optgroup label="Trimister">
+                                <% acadSessionList.forEach(acadSession => { %>
+                                    <option value="<%= acadSession.id %>"><%= acadSession.acad_session %></option>
+                                <% }) %>
+                            </optgroup>
+                        </select>
+                        <span class="text-danger" id="acad-sessions-text" style="font-size: 12px; display: none;">Acad Session Required *</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="confirm-edit-bidding-session-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    
+    <div class="modal fade" id="delete-session-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Bidding Session</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Delete Bidding Session?</p>
+                    <p class="fs-5 mb-0" id="delete-bidding-session-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="delete-bidding-session-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+
+    $("#acad-year").selectize()
+
+    $("#acad-sessions").selectize({
+        plugins: ['remove_button'],
+        sortField: 'text'
+    })
+
+    $("#edit-acad-sessions").selectize({
+        plugins: ['remove_button'],
+        sortField: 'text'
+    })
+
+    const acadSessionList = JSON.parse('<%- JSON.stringify(acadSessionList) %>')
+    // console.log(acadSessionList)
+
+    $("#add-session-btn").on('click', function(){
+        $("#add-edit-session-modal .modal-header h1").text("Add Bidding Session")
+        $("#session-name").val('')
+        $("#acad-year")[0].selectize.clear()
+        $("#start-date").val('')
+        $("#end-date").val('')
+        $("#acad-sessions")[0].selectize.clear()
+        // $("#save-bidding-btn").text("Add")
+
+        $("#add-edit-session-modal").modal("show")
+    })
+
+
+    $("#delete-session-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const biddingSessionId = btn.getAttribute("data-bidding-session-id")
+        const biddingSessionName = btn.getAttribute("data-bidding-session-name")
+        
+        $("#delete-bidding-session-name").text(biddingSessionName)
+        $("#delete-bidding-session-btn").attr('data-bidding-session-id', biddingSessionId)
+    })
+
+
+    $("#delete-bidding-session-btn").on("click", function(){
+        const biddingSessionId = $(this).attr("data-bidding-session-id")
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/bidding-sessions/delete-bidding-session",
+            data : {
+                biddingSessionId : biddingSessionId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#delete-session-modal").modal('hide')
+
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+    $("#edit-session-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const biddingSessionId = btn.getAttribute("data-bidding-session-id")
+        const biddingSessionName = btn.getAttribute("data-bidding-session-name")
+        const biddingSessionStartDate = convertDateForEditDateInput(btn.getAttribute("data-bidding-session-start-date"))
+        const biddingSessionEndDate = convertDateForEditDateInput(btn.getAttribute("data-bidding-session-end-date"))
+        const biddingSessionAcadSessions = btn.getAttribute('data-bidding-session-acad-session-list')
+
+        // console.log(biddingSessionId, biddingSessionName, biddingSessionStartDate, biddingSessionEndDate, biddingSessionAcadSessions)
+        $("#edit-session-name").val(biddingSessionName)
+        $("#edit-start-date").val(biddingSessionStartDate)
+        $("#edit-end-date").val(biddingSessionEndDate)
+        $("#confirm-edit-bidding-session-btn").attr('data-bidding-session-id', biddingSessionId)
+
+
+        const editAcadSessionSelect = $("#edit-acad-sessions")[0].selectize    
+
+        existingAcadSessions =  []
+
+        if(biddingSessionAcadSessions) {
+            const sessions = biddingSessionAcadSessions.split(",")
+            sessions.forEach((session) => {
+                const [name, id] = session.split(":")
+                if (name && id) {
+                    existingAcadSessions.push(id.trim())
+                }
+            })
+        }
+        editAcadSessionSelect.setValue(existingAcadSessions)
+
+    })    
+
+    $("#confirm-edit-bidding-session-btn").on("click", function(){
+        const biddingSessionId = $(this).attr("data-bidding-session-id")
+        const editBiddingSessionName = $("#edit-session-name").val()
+        const editBiddingSessionStartDate = $("#edit-start-date").val()
+        const editBiddingSessionEndDate = $("#edit-end-date").val()
+        const editBiddingSessionAcadSessions = $("#edit-acad-sessions").val()
+
+        if(editBiddingSessionAcadSessions.length == 0){
+            alert("Select At least one Acad Session")
+            return
+        }
+
+        const inputJSON = {
+            id: biddingSessionId,
+            bidding_name: editBiddingSessionName,
+            start_date: editBiddingSessionStartDate,
+            end_date: editBiddingSessionEndDate,
+            year: new Date().getFullYear() + '',
+            acad_session_lid: editBiddingSessionAcadSessions
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/bidding-sessions/edit-bidding-session",
+            data : {
+                inputJSON : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#edit-session-modal").modal('hide')
+
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+
+    $("#save-bidding-btn").on("click", function(){
+        const biddingSessionName = $("#session-name").val()
+        const acadYear = $("#acad-year").val()
+        const startDate = $("#start-date").val()
+        const endDate = $("#end-date").val()
+        const acadSessions = $("#acad-sessions").val()
+
+
+        if(biddingSessionName.length == 0 || acadYear.length == 0 || startDate == 0 || endDate == 0 || acadSessions == 0){
+            alert('All fields are required')
+            return
+        }
+
+        const inputJSON = {
+            bidding_name : biddingSessionName,
+            year : acadYear,
+            start_date : startDate,
+            end_date : endDate, 
+            acad_session_lid : acadSessions
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/bidding-sessions/add-bidding-session",
+            data : {
+                inputJSON : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result =>{
+
+            toast.success(result.description)
+            $("#add-session-modal").modal('hide')
+
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+
+        }).catch(err => {
+            console.log(err)
+            toast.error(err.responseJSON.description)
+        })
+        
+    })
+
+    function convertDateForEditDateInput(date){
+        const [day, month, year] = date.split('/')
+        return `${year}-${month}-${day}`        
+    }
+
+</script>
+
+<%- include("../partials/footerEnd") %>

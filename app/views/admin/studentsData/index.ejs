@@ -1,0 +1,799 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+    .file-drop-zone {
+        width: 100%;
+        height: 200px;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        transition: border-color 0.3s ease;
+    }
+
+    .file-drop-zone:hover {
+        border-color: #666;
+    }
+
+    .file-drop-zone.dragover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .remove-single{
+        color : #000 !important;
+        text-decoration: none !important;
+    }
+</style>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Students</h1>
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <button class="btn event-btn" id="delete-all-students-btn"  data-bs-toggle="modal" data-bs-target="#delete-all-students-modal" disabled>Delete All Students Data</button>
+            <button class="btn event-btn" id="add-students-btn"  data-bs-toggle="modal" data-bs-target="#add-students-modal">Add Studnets Data</button>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-lg-1 col-md-2">
+            <select id="set-entries">   
+                <%for(let page of locals.page_filter){%>
+                    <option value="<%= page%>"><%= page%></option>
+                <%}%>
+            </select>
+        </div>
+        <div class="col-lg-6 col-md-5">
+            <select id="set-program">   
+                <option value="">Select Program</option>
+                <% programList.forEach(program => { %>
+                    <option value="<%= program.program_id %>"> <%= program.program_name%> </option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="col-lg-5 col-md-5">
+            <select id="set-student">   
+                <option value="" selected disabled>Select Student</option>
+                <!-- <option value="80512200001">MANAV TALWAR</option>
+                <option value="8051220002">MANAV TALWARI</option>
+                <option value="80512100773">KASHYAP SHIVAMI ANIL KUMAR RANI</option> -->
+            </select>
+        </div>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>
+                        <% if(studentsDataList.length > 0){ %>
+                            <input type="checkbox" id="select-all-students-check" style="width: 16px; height: 16px;">
+                        <% }else{ %>
+                            #
+                        <% } %>
+                    </th>
+                    <th>Student Code</th>
+                    <th>Roll No</th>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Program Name</th>
+                    <th>Bid Points</th>
+                    <th>Year of Joining</th>
+                    <th>Previous Elective <br> Credits</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(studentsDataList.length>0){ %>
+                    <% studentsDataList.forEach((student, idx) => {%>
+                        <tr>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="student-idx"><%= (idx+1) %></span>
+                                    <input type="checkbox" 
+                                        class="select-student-check d-none" 
+                                        style="width: 16px; height: 16px;"
+                                        data-student-id = "<%= student.id %>"
+                                    >
+                                </div>
+                            </td>
+                            <td> <%= student.sap_id %></td>
+                            <td><%= student.roll_no %></td>
+                            <td><%= student.student_name %></td>
+                            <td><%=  student.email %></td>
+                            <td><%= student.program_name %></td>
+                            <td><%= student.bid_points %></td>
+                            <td><%= student.year_of_joining %></td>
+                            <td><%= student.previous_elective_credits %></td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent" 
+                                        data-student-id = "<%= student.id %>"
+                                        data-student-name = "<%= student.student_name %>"
+                                        data-student-email = "<%= student.email %>"
+                                        data-student-bid-points = "<%= student.bid_points %>"
+                                        data-student-year-of-joining = "<%= student.year_of_joining %>"
+                                        data-student-previous-elective-credits = "<%= student.previous_elective_credits %>"
+                                        data-bs-toggle="modal" data-bs-target="#edit-student-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent" 
+                                        data-student-id = "<%= student.id %>"
+                                        data-student-name = "<%= student.student_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-student-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="10">
+                            No Student Data
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 w-100 d-flex justify-content-between align-items-center">
+        <%if(studentsDataList.length > 0){%>
+            <div>
+                <p>Total entries :&nbsp;<span id="page-no"><%- studentsDataListCount %></span></p>
+            </div>
+            <div class="pagination-bar">
+                <div id="pagination" class="pagination-search"></div> 
+            </div>
+        <% } %>
+    </div>
+
+     <!-- Modal -->
+    <div class="modal fade" id="add-students-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Students</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <span>Download sample data : <a href="/admin/students-data/get-sample-students-data-excel" download="SampleStudentsData.xlsx" class="" style="color: #DC2626;">Sample for Students Data</a></span>
+                    </div>
+                    <div id="file-drop-zone" class="file-drop-zone">
+                        <p>Drop your file here, or click to select</p>
+                        <input type="file" id="file-input" style="display: none;"  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                    </div>
+                    <div id="file-info" class="w-100 mt-3 p-2 d-none justify-content-between align-items-center border rounded" >
+                        <p class="m-0" id="file-name"></p>
+                        <button class="btn btn-close" id="remove-btn"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="save-students-data-btn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-all-students-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete All Student</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-0">Are you sure want to Delete All Students Data?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-all-student-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="modal fade" id="delete-student-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Student</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Student?</p>
+                    <p class="fs-5 mb-0" id="delete-student-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-student-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-student-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Student Data</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Student Name :</label>
+                            <input type="text" class="modal-input" id="edit-student-name" placeholder="Enter Student Name">
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Student Email :</label>
+                            <input type="text" class="modal-input" id="edit-student-email" placeholder="Enter Student Mail">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Bid Points :</label>
+                            <input type="number" class="modal-input" id="edit-student-bid-points" placeholder="Enter Bid Points">
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Year of Joining :</label>
+                            <input type="number" class="modal-input" id="edit-student-year-of-joining" placeholder="Enter Year Joining">
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Previous Elective Credits :</label>
+                            <input type="number" class="modal-input" id="edit-elecitve-credits" placeholder="Enter Previous Elective Credits">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-edit-student-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<%- include("../partials/footer") %>
+<script>
+    
+    setActiveMenuItem(`<%- active %>`)
+
+    $("#set-entries").selectize()
+
+    $("#set-program").selectize({
+        plugins: ["remove_button"],
+    })
+
+    $("#set-student").selectize({
+        plugins: ["remove_button"],
+    })
+
+    const studentListEntries = $("#set-entries")[0].selectize
+    const programSelect = $("#set-program")[0].selectize
+    const studentSelect = $("#set-student")[0].selectize
+
+    let deleteStudentList = []
+
+    const studentsDataListCount = `<%- studentsDataListCount %>`
+    // console.log(studentListEntries.items[0], studentsDataListCount)
+    paginationData(studentListEntries.items[0], parseInt(studentsDataListCount))
+
+    var $fileDropZone = $('#file-drop-zone');
+    var $fileInput = $('#file-input');
+    var $fileInfo = $('#file-info');
+    var $fileName = $('#file-name');
+    var $removeFile = $('#remove-btn');
+    var selectedFile = null; // Store the selected file
+
+    // Trigger file input when div is clicked
+    $fileDropZone.on('click', function(e) {
+        if (e.target !== $fileInput[0]) {  // Check to ensure it's not the file input itself
+            $fileInput.trigger('click');
+        }
+    });
+
+    // Handle file selection through input
+    $fileInput.on('change', function(e) {
+        handleFiles(e.target.files);
+    });
+
+    // Handle drag and drop
+    $fileDropZone.on('dragover', function(e) {
+        e.preventDefault();
+        $fileDropZone.addClass('dragover');
+    });
+
+    $fileDropZone.on('dragleave', function() {
+        $fileDropZone.removeClass('dragover');
+    });
+
+    $fileDropZone.on('drop', function(e) {
+        e.preventDefault();
+        $fileDropZone.removeClass('dragover');
+        var files = e.originalEvent.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // Handle files (only 1 file allowed)
+    function handleFiles(files) {
+        if (files.length > 0) {
+            selectedFile = files[0]; // Select the first file
+            console.log('File dropped or selected:', selectedFile);
+            displayFile(selectedFile.name); // Display the file name
+        }
+    }
+
+    // Display the selected file and show remove button
+    function displayFile(fileName) {
+        $fileName.text(fileName);   // Set the file name in the UI
+        $fileInfo.removeClass('d-none'); // Remove d-none to make the file info visible
+        $fileInfo.addClass('d-flex')
+        $fileDropZone.hide();       // Hide the drop zone
+    }
+
+    // Remove the selected file
+    $removeFile.on('click', function() {
+        clearFileSelection();
+    });
+
+    // Clear the file selection
+    function clearFileSelection() {
+        $fileInput.val('');         // Clear the file input
+        $fileInfo.addClass('d-none'); // Hide file info section by adding d-none
+        $fileName.text('');         // Clear the file name
+        selectedFile = null;        // Reset selected file
+        $fileDropZone.show();       // Show the drop zone again
+    }
+
+    $("#edit-student-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const studentId = btn.getAttribute('data-student-id')
+        const studentName = btn.getAttribute('data-student-name')
+        const studentEmail = btn.getAttribute('data-student-email') 
+        const studentBidPoints = btn.getAttribute('data-student-bid-points') 
+        const studentYearOfJoining = btn.getAttribute('data-student-year-of-joining')
+        const studentPreviousElectiveCredits = btn.getAttribute('data-student-previous-elective-credits')
+        $("#edit-student-name").val(studentName)
+        $("#edit-student-email").val(studentEmail)
+        $("#edit-student-bid-points").val(studentBidPoints)
+        $("#edit-student-year-of-joining").val(studentYearOfJoining)
+        $("#edit-elecitve-credits").val(studentPreviousElectiveCredits)
+        $("#confirm-edit-student-btn").attr('data-student-id', studentId)
+    })
+
+    $("#delete-student-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const studentId = btn.getAttribute('data-student-id')
+        const studentName = btn.getAttribute('data-student-name')
+        $("#delete-student-name").text(studentName)
+        $("#confirm-delete-student-btn").attr('data-student-id', studentId)
+    })
+
+    $("#confirm-delete-student-btn").on("click",function(){
+        const studentId = $(this).attr('data-student-id')
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/students-data/delete-student",
+            data : {
+                studentId : studentId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.sucess(result.responseJSON.description)
+            $("#delete-student-modal").modal('hide')
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+    })
+
+    $("#confirm-edit-student-btn").on("click",function(){
+        const studentId = $(this).attr('data-student-id')
+        const studentName = $("#edit-student-name").val()
+        const studentEmail = $("#edit-student-email").val()
+        const studentBidPoints = $("#edit-student-bid-points").val()
+        const studentYearOfJoining = $("#edit-student-year-of-joining").val()
+        const studentPreviousElectiveCredits = $("#edit-elecitve-credits").val()
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/students-data/update-student",
+            data : {
+                inputJSON : {
+                    id : studentId,
+                    student_name : studentName,
+                    email : studentEmail,
+                    bid_points : studentBidPoints,
+                    year_of_joining : studentYearOfJoining,
+                    previous_elective_credits : studentPreviousElectiveCredits
+                }
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.sucess(result.responseJSON.description)
+            $("#delete-student-modal").modal('hide')
+            
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+    })
+
+
+    $("#select-all-students-check").on("change", function(){
+        const isChecked = $(this).is(":checked")
+
+        if(isChecked){
+
+            $("#delete-all-students-btn").attr("disabled", false)
+
+            $(".table-body tr").each(function(){
+                const row = $(this)
+                const checkbox = row.find(".select-student-check")
+                const studentId = checkbox.data("student-id")
+
+                row.find(".student-idx").addClass("d-none")
+                checkbox.removeClass("d-none").prop("checked", true)
+
+                if(!deleteStudentList.includes(studentId)){
+                    deleteStudentList.push(studentId)
+                }
+            })
+            console.log("Selected IDs after selecting all: ", deleteStudentList)
+        }else{
+            $("#delete-all-students-btn").attr("disabled", true)
+
+            $(".table-body tr").each(function(){
+                const row = $(this)
+                const checkbox = row.find(".select-student-check")
+
+                row.find(".student-idx").removeClass("d-none")
+                checkbox.addClass("d-none").prop("checked", false)
+
+            })
+            deleteStudentList.length = 0
+            console.log("Selected IDs cleared: ", deleteStudentList)
+        }
+    })
+
+    $(".table-body").on("change", ".select-student-check", function(){
+        const checkbox = $(this)
+        const studentId = checkbox.data("student-id")
+
+        if(checkbox.is(":checked")){
+            if(!deleteStudentList.includes(studentId)){
+                deleteStudentList.push(studentId)
+            }
+        }else{
+            const index = deleteStudentList.indexOf(studentId)
+            if(index > -1){
+                deleteStudentList.splice(index, 1)
+            }
+        }
+        console.log("Updated Selected IDs: ", deleteStudentList);
+
+    })
+
+    $("#confirm-delete-all-student-btn").on("click", function(){
+        if(deleteStudentList.length > 0){
+            const studentList = deleteStudentList.map(studentId => studentData = {id : parseInt(studentId)})
+            // console.log(studentList)
+            let ApiObj = {
+                type : "POST",
+                url : "/admin/students-data/delete-all-student",
+                data : {
+                    studentList
+                },
+                datatype : JSON
+            }
+
+            ajaxApi(ApiObj).then(result => {
+                // console.log(result)
+                
+                $("#delete-all-students-modal").modal("hide")
+                toast.success(result.description)
+
+                setTimeout(()=>{
+                    location.reload()
+                },[3000])
+
+            }).catch(err => {
+                toast.error(err.responseJSON.description)
+            })
+        }
+    })
+    
+    $("#save-students-data-btn").on("click", function(){
+        if(!selectedFile){
+            alert("Please select file first")
+            return
+        }
+
+        const formData = new FormData()
+        formData.append('excel-file', selectedFile)
+
+        $.ajax({
+            url: '/admin/students-data/add-student', 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                console.log(result)
+                clearFileSelection()
+                $("#add-students-modal").modal("hide")
+                toast.success(result.description)
+
+                setTimeout(function(){
+                    location.reload()
+                }, 3000)                
+            },
+            error: function (xhr, status, error) {
+                console.log(xhr.responseJSON.description)
+                toast.error(xhr.responseJSON.description)
+                
+            }
+        })
+    })
+
+    studentListEntries.on("change", function(){
+        studentSelect.setValue(-1)
+        applyFilterByEntriesCount()
+    })
+
+    programSelect.on("change", function(){
+        studentSelect.setValue(-1)
+        const programId = programSelect.items[0]
+        if(programId == undefined){
+            applyFilterByEntriesCount()
+        }else{
+            applyFilterByProgramId()
+        }
+    })
+
+    studentSelect.on("change", function(){
+        const studentId = studentSelect.items[0]
+        if(studentId == undefined){
+            applyFilterByProgramId()
+        }else{
+            applyFilterByStudentId()
+        }
+    })
+
+    function applyFilterByEntriesCount(){
+        let showEntry  = studentListEntries.items[0] || -1
+        let programId = programSelect.items[0] || -1
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/students-data/show-entries",
+            data : {
+                programId : programId,
+                entriesCount : showEntry
+            }
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(showEntry, result.studentListByEntriesCount)
+            renderStudentListTable(result.studentListByEntries)
+            paginationData(showEntry, result.studentListByEntriesCount)
+            $("#page-no").text(result.studentListByEntriesCount)
+        }).catch(err => {
+            console.log(err.message)
+            console.log(err.responseJSON.description)
+        })
+    }
+
+    function applyFilterByProgramId(){
+        const studentEntries  = studentListEntries.items[0]
+        const programId = programSelect.items[0]
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/students-data/students-by-program",
+            data : {
+                programId : programId,
+                entriesCount : studentEntries
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            renderStudentListTable(result.studentListByProgramId)
+            addStudentOptionList(result.studentOptionsListByProgramId)
+            paginationData(studentEntries, result.studentListByProgramIdCount)
+            $("#page-no").text(result.studentListByProgramIdCount)
+
+        }).catch(err => {   
+            console.log(err.responseJSON.description)
+        })
+    }
+
+    function applyFilterByStudentId(){
+        const studentEntries  = studentListEntries.items[0]
+        const programId = programSelect.items[0]
+        const studentId = studentSelect.items[0]
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/students-data/students-by-student",
+            data : {
+                programId : programId,
+                studentId : studentId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            renderStudentListTable(result.studentListByStudentId)
+            paginationData(studentEntries, result.studentListByStudentIdCount)
+            $("#page-no").text(result.studentListByStudentIdCount)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    }
+
+    function addStudentOptionList(studentOptionsList){
+        studentSelect.clearOptions()
+
+        if(studentOptionsList.length > 0){
+            studentOptionsList.forEach(student => {
+                studentSelect.addOption({
+                    value : student.sap_id,
+                    text : `${student.student_name}`
+                })
+            })
+        }else{
+            studentSelect.addOption({ value: "", text: "No Students", disabled: true})
+        }
+
+        studentSelect.refreshOptions(false)
+    }
+
+    function fetchPaginatedData(pageNo){
+        const entriesCount = studentListEntries.items[0] || 10
+        
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/students-data/students-by-pages",
+            data : {
+                pageNo : pageNo,
+                letterSearch : '',
+                entriesCount : entriesCount
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            renderStudentListTable(result.studentListByPages)
+            $("#page-no").text(result.studentListByPagesByCount)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    }
+
+
+    function renderStudentListTable(studentsDataList){
+        $(".table-body").empty();
+        let studentTable = ``;
+
+        $("#select-all-students-check").prop("checked", false)
+        $("#delete-all-students-btn").attr("disabled", true)
+        deleteStudentList.length = 0
+
+        if (studentsDataList.length > 0) {
+            let idx = 1;
+            for (let student of studentsDataList) {
+                // Append each student row to studentTable
+                studentTable += `
+                    <tr>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center">
+                            <span class="student-idx">${idx++}</span>
+                            <input type="checkbox" 
+                                class="select-student-check d-none" 
+                                style="width: 16px; height: 16px;"
+                                data-student-id = "${student.id}"
+                            >
+                            </div>
+                        </td>
+                        <td>${student.sap_id}</td>
+                        <td>${student.roll_no}</td>
+                        <td>${student.student_name}</td>
+                        <td>${student.email}</td>
+                        <td>${student.program_name}</td>
+                        <td>${student.bid_points}</td>
+                        <td>${student.year_of_joining}</td>
+                        <td>${student.previous_elective_credits}</td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center gap-3">
+                                <button class="border-0 bg-transparent" 
+                                    data-student-id="${student.id}"
+                                    data-student-name="${student.student_name}"
+                                    data-student-email="${student.email}"
+                                    data-student-bid-points="${student.bid_points}"
+                                    data-student-year-of-joining="${student.year_of_joining}"
+                                    data-student-previous-elective-credits="${student.previous_elective_credits}"
+                                    data-bs-toggle="modal" data-bs-target="#edit-student-modal">
+                                    <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                </button>
+                                <button class="border-0 bg-transparent" 
+                                    data-student-id="${student.id}"
+                                    data-student-name="${student.student_name}"
+                                    data-bs-toggle="modal" data-bs-target="#delete-student-modal">
+                                    <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `
+            }
+        } else {
+            studentTable += `
+                <tr>
+                    <td colspan="10">No Student Data</td>
+                </tr>
+            `
+        }
+
+        // Populate the table body with the generated rows
+        $(".table-body").html(studentTable);
+    }
+
+
+    function paginationData(rowCount, totalCount){ 
+        let pageNos = Math.ceil(Number(totalCount) / Number(rowCount))
+        // console.log("Page Numbers", pageNos)
+        $('#pagination').bootpag({
+            total: pageNos,
+            page: 1,
+            maxVisible: 10,
+            leaps: true,
+            firstLastUse: true,
+            first: '←',
+            last: '→',
+            wrapClass: 'pagination',
+            activeClass: 'active', 
+            disabledClass: 'disabled',
+            nextClass: 'next',
+            prevClass: 'prev',
+            lastClass: 'last',
+            firstClass: 'first'
+        }).on("page", function (event, num) {
+            // console.log('pagination here!!')
+            // console.log(num)
+            fetchPaginatedData(num)
+        })
+    }
+
+</script>
+<%- include("../partials/footerEnd") %>

@@ -1,0 +1,234 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Specializations</h1>
+        <button class="btn event-btn" id="add-specialization-btn"  data-bs-toggle="modal" data-bs-target="#add-specialization-modal">Add Specialization</button>
+    </div>
+
+    <div class="card border-0 flex-grow-1 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Specialization</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(specializationsList.length > 0) { %>
+                    <% specializationsList.forEach((specialization, idx) => { %>
+                        <tr>
+                            <td><%= (idx+1) %></td>
+                            <td><%= specialization.concentration_name %></td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent ms-1" 
+                                        data-specialization-id ="<%= specialization.id %>"
+                                        data-specialization-name ="<%= specialization.concentration_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#edit-specialization-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent me-1" 
+                                        data-specialization-id ="<%= specialization.id %>"
+                                        data-specialization-name ="<%= specialization.concentration_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-specialization-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else { %>
+                    <tr>
+                        <td colspan="3" class="text-center" >No Specialization</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="add-specialization-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Specialization</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label">Specialization Name</label>
+                        <input class="modal-input" id="set-specialization-name" type="text" placeholder="Enter Specialization Name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button> -->
+                    <button type="button" class="btn event-btn" id="confirm-new-specialization-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-specialization-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Specialization</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Specialization?</p>
+                    <p class="fs-5 mb-0" id="delete-specialization-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-specialization-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-specialization-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Specialization</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label">Specialization Name</label>
+                        <input class="modal-input" id="edit-specialization-name" type="text" placeholder="Enter Specialization Name">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-specialization-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+    
+    $("#confirm-new-specialization-btn").on("click", function(){
+        const specializationName = $("#set-specialization-name").val()
+
+        if(!specializationName){
+            alert("Enter Specialization Name")
+            return
+        }
+
+        const inputJSON = {
+            concentration_name : specializationName
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/specialization/add-specialization",
+            data : {
+                inputJSON : inputJSON
+            },
+            datatype : "JSON"
+        }
+
+        // console.log(specializationName)
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#add-specialization-modal").modal('hide')
+            $("#set-specialization-name").val("")
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+    $("#add-specialization-modal .btn-close").on("click", function(){
+        $("#set-specialization-name").val("")
+    })
+
+    $("#edit-specialization-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const specializationId = btn.getAttribute("data-specialization-id")
+        const specializationName = btn.getAttribute("data-specialization-name")
+        $("#edit-specialization-name").val(specializationName)
+        $("#confirm-specialization-btn").attr("data-specialization-id", specializationId)
+    })
+
+    $("#delete-specialization-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const specializationId = btn.getAttribute("data-specialization-id")
+        const specializationName = btn.getAttribute("data-specialization-name")
+        $("#delete-specialization-name").text(specializationName)
+        $("#confirm-delete-specialization-btn").attr("data-specialization-id", specializationId)
+    })
+    
+    $("#confirm-specialization-btn").on("click", function(){
+        const specializationId = $(this).attr("data-specialization-id")
+        const specializationName = $("#edit-specialization-name").val()
+        
+        let inputJSON = {
+            id : specializationId,
+            concentration_name : specializationName
+        }
+
+        let ApiObj = {
+            url : "/admin/specialization/update-specialization",
+            type : "POST",
+            data : {
+                inputJSON : inputJSON        
+            },
+            datatype : "JSON"
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#edit-specialization-modal").modal("hide")
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+    $("#confirm-delete-specialization-btn").on("click", function(){
+        const specializationId = $(this).attr("data-specialization-id")
+
+        let ApiObj = {
+            url : '/admin/specialization/delete-specialization',
+            type : "POST",
+            data : {
+                specializationId : specializationId
+            },
+            datatype : "JSON"
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#delete-specialization-modal").modal('hide')
+        }).catch(err=>{
+            toast.error(err.responseJSON.description)
+        })
+    })
+
+</script>
+<%- include("../partials/footerEnd") %>

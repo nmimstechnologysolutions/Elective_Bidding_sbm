@@ -1,0 +1,190 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Programs</h1>
+        <button 
+            class="btn event-btn" 
+            id="add-session-btn"  
+            data-bs-toggle="modal" data-bs-target="#add-edit-program-modal"
+            <%= Array.isArray(programsFromDB) && programsFromDB.length > 0 ? '' : 'disabled' %>>
+            Add Programs
+        </button>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Program Code</th>
+                    <th>Program Name</th>
+                    <th>Program Abbreviation</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(programList.length > 0){ %>
+                    <% programList.forEach((program, idx) => { %>
+                        <tr>
+                            <td><%= idx+1 %></td>
+                            <td><%= program.program_code %></td>
+                            <td><%= program.program_name %></td>
+                            <td><%= program.abbr %></td>
+                            <td>
+                                <button class="border-0 bg-transparent me-1" data-program-name="<%= program.program_name %>" data-program-id="<%= program.id %>" data-bs-toggle="modal" data-bs-target="#delete-program-modal">
+                                    <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="5">No Programs Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="add-edit-program-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add New Program</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label" >Select Program</label>
+                        <select id="set-program">   
+                            <option value="" selected>Select Program</option>
+                            <%programsFromDB.forEach(program =>{  %>
+                                <option value="<%= program.program_id %>"> <%= program.program_name %> </option>
+                            <% }) %>
+                        </select>
+                        <span class="text-danger" id="acad-year-text" style="font-size: 12px; display: none;">Program Required *</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="save-program-btn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-program-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Program</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Delete Program?</p>
+                    <p class="fs-5 mb-0" id="delete-program-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-program-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+    
+    $("#set-program").selectize()
+
+    console.log("<%= programsFromDB %>")
+
+    $("#save-program-btn").on("click", function(){
+        const programId = $("#set-program")[0].selectize.items[0]
+        const programName = $("#set-program").text()
+        const programAbbr = $("#set-program").attr('data-program-abbr')
+        const programCode = $("#set-program").attr('data-program-code')
+        
+        
+        // console.log('programName :', programName)
+        
+        const program = {
+            program_name : programName,
+            program_id : programId,
+            program_abbr : programAbbr,
+            program_code : programCode
+        }
+
+        const inputJSON = [program]
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/programs/add-program",
+            data : {
+                inputJSON : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+        
+        ajaxApi(ApiObj).then(result =>{
+            toast.success(result.responseJSON.description)
+            $("#set-program")[0].selectize.clear()    
+            $("#add-edit-program-modal").modal("hide")
+        }).catch(err =>{
+            toast.error(err.responseJSON.description)
+        })
+
+    })
+    
+    $("#delete-program-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const programId = btn.getAttribute('data-program-id')
+        const programName = btn.getAttribute('data-program-name')
+        const modalDeleteBtn = $("#confirm-delete-program-btn")
+        modalDeleteBtn.attr('data-program-id', programId)
+        $("#delete-program-name").text(programName)
+    })
+
+    $("#confirm-delete-program-btn").on("click", function(){
+        const programId = $(this).data('program-id')
+        // console.log('program id', programId)
+        
+        let AjaxObj = {
+            url : '/admin/programs/delete-program',
+            type : 'POST',
+            data : {
+                program_id : programId
+            },
+            dataType : 'JSON'
+        }
+
+        ajaxApi(AjaxObj).then(result => {
+            toast.sucess(result.responseJSON.description)
+            $("#delete-program-modal").modal("hide")
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+
+    })
+
+
+</script>
+<%- include("../partials/footerEnd") %>

@@ -1,0 +1,793 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+    .file-drop-zone {
+        width: 100%;
+        height: 200px;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        transition: border-color 0.3s ease;
+    }
+
+    .file-drop-zone:hover {
+        border-color: #666;
+    }
+
+    .file-drop-zone.dragover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .remove-single{
+        color : #000 !important;
+        text-decoration: none !important;
+    }
+
+</style>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Division Batches</h1>
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <button class="btn event-btn" id="delete-all-div-batch"  data-bs-toggle="modal" data-bs-target="#delete-all-div-batch-modal" disabled>Delete All Division Batches</button>
+            <button class="btn event-btn" id="add-div-batch-btn"  data-bs-toggle="modal" data-bs-target="#add-div-batch-modal">Add Division Batches Data</button>
+        </div>
+    </div>
+
+    <div class="mb-3 row">
+        <div class="col-lg-1 col-md-2">
+            <select id="set-entries">   
+                <%for(let page of locals.page_filter){%>
+                    <option value="<%= page%>"><%= page%></option>
+                <%}%>
+            </select>
+        </div>
+        <div class="col-lg-6 col-md-5">
+            <select id="set-program">   
+                <option value="" selected>Select Program</option>
+                <% programList.forEach(program => { %>
+                    <option value="<%= program.program_id %>"> <%= program.program_name %> </option>
+                <% }) %>
+            </select>
+        </div>
+        <div class="col-lg-5 col-md-5">
+            <select id="set-session">   
+                <option value="" selected disabled>Select Session</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>
+                        <%- divisionBatchesList.length > 0 
+                            ? `<input type="checkbox" id="select-all-div-batch-check" style="width: 16px; height: 16px;">`
+                            : '#'
+                        %>
+                    </th>
+                    <th>Program Name</th>
+                    <th>Acad Session</th>
+                    <th>Course Name</th>
+                    <th>Division</th>
+                    <th>Batch</th>
+                    <th>Maximum <br>Seats</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(divisionBatchesList.length > 0){ %>
+                    <% divisionBatchesList.forEach((divisionBatch, idx) => { %>
+                    <tr>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center">
+                                <span class="div-batch-idx"><%= (idx+1) %></span>
+                                <input type="checkbox" 
+                                    class="select-div-batch-check d-none" 
+                                    style="width: 16px; height: 16px;"
+                                    data-div-batch-id = "<%= divisionBatch.id %>"
+                                >
+                            </div>
+                        </td>
+                        <td><%= divisionBatch.program_name %></td>
+                        <td><%= divisionBatch.acad_session %></td>
+                        <td><%= divisionBatch.course_name %></td>
+                        <td><%= divisionBatch.division %></td>
+                        <td><%= divisionBatch.batch %></td>
+                        <td><%= divisionBatch.max_seats %></td>
+                        <td>
+                            <div class="d-flex justify-content-center align-items-center gap-3">
+                                <button class="border-0 bg-transparent"
+                                    data-division-batch-id = "<%= divisionBatch.id %>"
+                                    data-division-batch-program-name = "<%= divisionBatch.program_name %>"
+                                    data-division-batch-acad-session = "<%= divisionBatch.acad_session %>"
+                                    data-division-batch-course-name = "<%= divisionBatch.course_name %>"
+                                    data-division-batch-div = "<%= divisionBatch.division %>"
+                                    data-division-batch-batch = "<%= divisionBatch.batch %>"
+                                    data-division-batch-max-seats = "<%= divisionBatch.max_seats %>"
+                                    data-bs-toggle="modal" data-bs-target="#edit-division-batch-modal">
+                                    <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                </button>
+                                <button class="border-0 bg-transparent" 
+                                    data-division-batch-id = "<%= divisionBatch.id %>"
+                                    data-division-batch-course-name = "<%= divisionBatch.course_name %>"
+                                    data-division-batch-div = "<%= divisionBatch.division %>"
+                                    data-division-batch-batch = "<%= divisionBatch.batch %>"
+                                    data-bs-toggle="modal" data-bs-target="#delete-division-batch-modal">
+                                    <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="8">No Division Batches Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="mt-4 w-100 d-flex justify-content-between align-items-center">
+        <% if(divisionBatchesList.length > 0){ %>
+            <div>
+                <p>Total entries :&nbsp;<span id="page-no"><%- divisionBatchesListCount %></span></p>
+            </div>
+            <div class="pagination-bar">
+                <div id="pagination" class="pagination-search"></div> 
+            </div>
+        <% } %>
+    </div>
+
+     <!-- Modal -->
+    <div class="modal fade" id="add-div-batch-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Division Batches</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <span>Download sample data : <a href="/admin/division-batches/get-sample-div-batch-excel" download="SampleDivBatches.xlsx" class="" style="color: #DC2626;">Sample for Division Batches</a></span>
+                    </div>
+                    <div id="file-drop-zone" class="file-drop-zone">
+                        <p>Drop your file here, or click to select</p>
+                        <input type="file" id="file-input" style="display: none;"  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                    </div>
+                    <div id="file-info" class="w-100 mt-3 p-2 d-none justify-content-between align-items-center border rounded" >
+                        <p class="m-0" id="file-name"></p>
+                        <button class="btn btn-close" id="remove-btn"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="save-div-batch-btn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-all-div-batch-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete All Division Batches</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-0">Are you sure want to Delete All Division Batches Data?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-all-div-batch-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="modal fade" id="delete-division-batch-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Division Batch</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Delete Division Batch?</p>
+                    <p class="fs-5 mb-0" id="delete-division-batch-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-division-batch-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-division-batch-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Completed Course</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Pogram Name :</label>
+                            <p class="fs-6" id="edit-program-name"></p>
+                            <!-- <input type="text" class="modal-input" value="MANAV TALWAR" placeholder="Enter Student Name"> -->
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Acad Session :</label>
+                            <p class="fs-6" id="edit-acad-session"></p>
+                            <!-- <input type="text" class="modal-input" value="manav.talwar001@nmims.edu.in" placeholder="Enter Student Mail"> -->
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Course Name :</label>
+                            <p class="fs-6" id="edit-course-name"></p>
+                            <!-- <input type="number" class="modal-input" value="260" placeholder="Enter Bid Points"> -->
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Division & Batch :</label>
+                            <p class="fs-6" id="edit-division-batch"></p>
+                            <!-- <input type="number" class="modal-input" value="2022" placeholder="Enter Year Joining"> -->
+                        </div>
+                    </div>
+                    <div class="row mb-2">
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Max Seats :</label>
+                            <input type="number" class="modal-input" id="edit-max-seats" placeholder="Enter Max Seats">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-edit-division-batch-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<%- include("../partials/footer") %>
+<script>
+    setActiveMenuItem(`<%- active %>`)
+
+    $("#set-entries").selectize()
+
+    $("#set-program").selectize({
+        plugins: ["remove_button"],
+    })
+
+    $("#set-session").selectize({
+        plugins: ["remove_button"],
+    })
+
+    const divBatchEntries = $("#set-entries")[0].selectize
+    const programSelect = $("#set-program")[0].selectize
+    const acadSessionSelect = $("#set-session")[0].selectize
+    let deleteDivBatchesList = []
+
+    const divisionBatchesListCount = `<%- divisionBatchesListCount %>`
+    paginationData(divBatchEntries.items[0], parseInt(divisionBatchesListCount))
+
+    var $fileDropZone = $('#file-drop-zone');
+    var $fileInput = $('#file-input');
+    var $fileInfo = $('#file-info');
+    var $fileName = $('#file-name');
+    var $removeFile = $('#remove-btn');
+    var selectedFile = null; // Store the selected file
+
+    // Trigger file input when div is clicked
+    $fileDropZone.on('click', function(e) {
+        if (e.target !== $fileInput[0]) {  // Check to ensure it's not the file input itself
+            $fileInput.trigger('click');
+        }
+    });
+
+    // Handle file selection through input
+    $fileInput.on('change', function(e) {
+        handleFiles(e.target.files);
+    });
+
+    // Handle drag and drop
+    $fileDropZone.on('dragover', function(e) {
+        e.preventDefault();
+        $fileDropZone.addClass('dragover');
+    });
+
+    $fileDropZone.on('dragleave', function() {
+        $fileDropZone.removeClass('dragover');
+    });
+
+    $fileDropZone.on('drop', function(e) {
+        e.preventDefault();
+        $fileDropZone.removeClass('dragover');
+        var files = e.originalEvent.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // Handle files (only 1 file allowed)
+    function handleFiles(files) {
+        if (files.length > 0) {
+            selectedFile = files[0]; // Select the first file
+            console.log('File dropped or selected:', selectedFile);
+            displayFile(selectedFile.name); // Display the file name
+        }
+    }
+
+    // Display the selected file and show remove button
+    function displayFile(fileName) {
+        $fileName.text(fileName);   // Set the file name in the UI
+        $fileInfo.removeClass('d-none'); // Remove d-none to make the file info visible
+        $fileInfo.addClass('d-flex')
+        $fileDropZone.hide();       // Hide the drop zone
+    }
+
+    // Remove the selected file
+    $removeFile.on('click', function() {
+        clearFileSelection();
+    });
+
+    // Clear the file selection
+    function clearFileSelection() {
+        $fileInput.val('');         // Clear the file input
+        $fileInfo.addClass('d-none'); // Hide file info section by adding d-none
+        $fileName.text('');         // Clear the file name
+        selectedFile = null;        // Reset selected file
+        $fileDropZone.show();       // Show the drop zone again
+    }
+
+    $("#edit-division-batch-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const divisionBatchId = btn.getAttribute("data-division-batch-id")
+        const divisionBatchProgramName = btn.getAttribute("data-division-batch-program-name")
+        const divisionBatchCourseName = btn.getAttribute("data-division-batch-course-name")
+        const divisionBatchAcadSession = btn.getAttribute("data-division-batch-acad-session")
+        const divisionBatchDiv = btn.getAttribute("data-division-batch-div")
+        const divisionBatchBatch = btn.getAttribute("data-division-batch-batch")
+        const divisionBatchMaxSeats = btn.getAttribute("data-division-batch-max-seats")
+        $("#edit-program-name").text(divisionBatchProgramName)
+        $("#edit-acad-session").text(divisionBatchAcadSession)
+        $("#edit-course-name").text(divisionBatchCourseName)
+        $("#edit-division-batch").text(divisionBatchDiv+' - '+divisionBatchBatch)
+        $("#edit-max-seats").val(divisionBatchMaxSeats)
+        $("#confirm-edit-division-batch-btn").attr('data-division-batch-id', divisionBatchId)
+    })
+
+    $("#confirm-edit-division-batch-btn").on("click", function(){
+        const divisionBatchId = $(this).attr('data-division-batch-id')
+        const divisionBatchMaxSeats = $("#edit-max-seats").val()
+
+        const inputJSON = {
+            id : divisionBatchId,
+            max_seats : divisionBatchMaxSeats
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/division-batches/update-division-batch",
+            data : {
+                inputJSON : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.responseJSON.description)
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#edit-division-batch-modal").modal('hide')
+    })
+
+    $("#delete-division-batch-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const divisionBatchId = btn.getAttribute('data-division-batch-id')
+        const divisionBatchCourseName = btn.getAttribute('data-division-batch-course-name')
+        const divisionBatchDiv = btn.getAttribute('data-division-batch-div')
+        const divisionBatchBatch = btn.getAttribute('data-division-batch-batch')
+
+        $("#delete-division-batch-name").text(divisionBatchCourseName+" - "+divisionBatchDiv+" - "+divisionBatchBatch)
+        $("#confirm-delete-division-batch-btn").attr('data-division-batch-id', divisionBatchId)
+    })
+
+    $("#confirm-delete-division-batch-btn").on("click", function(){
+        const divisionBatchId = $(this).attr("data-division-batch-id")
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/division-batches/delete-division-batch",
+            data : {
+                divisionBatchId : divisionBatchId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.responseJSON.description)
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#delete-division-batch-modal").modal("hide")
+    })
+
+    $("#select-all-div-batch-check").on("change", function(){
+        const isChecked = $(this).is(":checked")
+
+        if(isChecked){
+
+            $("#delete-all-div-batch").attr("disabled", false)
+
+            $(".table-body tr").each(function(){
+                const row = $(this)
+                const checkbox = row.find(".select-div-batch-check")
+                const divBacthId = checkbox.data("div-batch-id")
+
+                row.find(".div-batch-idx").addClass("d-none")
+                checkbox.removeClass("d-none").prop("checked", true)
+
+                if(!deleteDivBatchesList.includes(divBacthId)){
+                    deleteDivBatchesList.push(divBacthId)
+                }
+            })
+            console.log("Selected IDs after selecting all: ", deleteDivBatchesList)
+        }else{
+            $("#delete-all-div-batch").attr("disabled", true)
+
+            $(".table-body tr").each(function(){
+                const row = $(this)
+                const checkbox = row.find(".select-div-batch-check")
+
+                row.find(".div-batch-idx").removeClass("d-none")
+                checkbox.addClass("d-none").prop("checked", false)
+
+            })
+            deleteDivBatchesList.length = 0
+            console.log("Selected IDs cleared: ", deleteDivBatchesList)
+        }
+    })
+
+    $(".table-body").on("change", ".select-div-batch-check", function(){
+        const checkbox = $(this)
+        const divBacthId = checkbox.data("div-batch-id")
+
+        if(checkbox.is(":checked")){
+            if(!deleteDivBatchesList.includes(divBacthId)){
+                deleteDivBatchesList.push(divBacthId)
+            }
+        }else{
+            const index = deleteDivBatchesList.indexOf(divBacthId)
+            if(index > -1){
+                deleteDivBatchesList.splice(index, 1)
+            }
+        }
+        console.log("Updated Selected IDs: ", deleteDivBatchesList);
+
+    })
+
+    $("#confirm-delete-all-div-batch-btn").on("click", function(){
+        // console.log(deleteDivBatchesList)
+        if(deleteDivBatchesList.length > 0){
+            const divBatchList = deleteDivBatchesList.map(divBatchId => delDivBatch = {id : parseInt(divBatchId)})
+            
+            let ApiObj = {
+                type : "POST",
+                url : "/admin/division-batches/delete-all-division-batch",
+                data : {
+                    divBatchList
+                },
+                datatype : JSON
+            }
+
+            ajaxApi(ApiObj).then(result => {
+                // console.log(result)
+                
+                $("#delete-all-div-batch-modal").modal("hide")
+                toast.success(result.description)
+
+                setTimeout(()=>{
+                    location.reload()
+                },[3000])
+
+            }).catch(err => {
+                toast.error(err.responseJSON.description)
+            })
+        }
+    })
+
+    $("#save-div-batch-btn").on("click", function(){
+
+        if(!selectedFile){
+            alert("Please select file first")
+            return
+        }
+
+        const formData = new FormData()
+        formData.append('excel-file', selectedFile)
+
+        $.ajax({
+            url: '/admin/division-batches/add-division-batch', 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                console.log(result)
+                clearFileSelection()
+                $("#add-div-batch-modal").modal("hide")
+                toast.success(result.description)
+
+                setTimeout(function(){
+                    location.reload()
+                }, 3000)                
+            },
+            error: function (xhr, status, error) {
+                toast.error(xhr.responseJSON.description)
+            }
+        })
+    })
+
+    divBatchEntries.on("change", function(){
+        acadSessionSelect.setValue(-1)
+        applyFitersByEntriesCount()
+    })
+
+    programSelect.on("change", function(){
+        acadSessionSelect.setValue(-1)
+
+        const programId = programSelect.items[0]
+
+        if(programId == undefined){
+            applyFitersByEntriesCount()
+        }else{
+            applyFiltersByProgramId()
+        }
+    })
+
+    acadSessionSelect.on("change", function(){
+        const acadSessionId = acadSessionSelect.items[0]
+        // console.log(acadSessionId)
+        if(acadSessionId == undefined){
+            applyFiltersByProgramId()
+        }else{
+            applyFiltersByAcadSessionId()
+        }
+    })
+
+    function applyFitersByEntriesCount(){
+        const showEntry = divBatchEntries.items[0]
+        const programId = programSelect.items[0] || -1
+        const acadSessionId = acadSessionSelect.items[0] || -1
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/division-batches/show-entries",
+            data : {
+                entriesCount : showEntry,
+                programId : programId,
+                acadSessionId : acadSessionId                
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            renderDivBatchesListTable(result.divBatchesListByEntries)
+            paginationData(showEntry, result.divBatchesListByEntriesCount)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+
+    }
+
+    function applyFiltersByProgramId(){
+        const entriesCount = divBatchEntries.items[0]
+        const programId = programSelect.items[0]
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/division-batches/div-batch-by-program",
+            data : {
+                programId : programId,
+                entriesCount : entriesCount
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            addAcadSessionsOptionsList(result.acadSessionListForOptionByProgramId)
+            renderDivBatchesListTable(result.divBatchListByProgramId)
+            paginationData(entriesCount, result.divBatchListByProgramIdCount)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    }
+
+    function applyFiltersByAcadSessionId(){
+        const entriesCount = divBatchEntries.items[0]
+        const programId = programSelect.items[0]
+        const acadSessionsId = acadSessionSelect.items[0]
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/division-batches/div-batch-by-acad-session",
+            data : {
+                entriesCount : entriesCount,
+                programId : programId,
+                acadSessionId : acadSessionsId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            renderDivBatchesListTable(result.divBatchListByAcadSessionId)
+            paginationData(entriesCount, result.divBatchListByAcadSessionIdCount)
+            $("#page-no").text(result.divBatchListByAcadSessionIdCount)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    }
+
+    function addAcadSessionsOptionsList(acadSessionOptionsList){
+        acadSessionSelect.clearOptions()
+
+        if(acadSessionOptionsList.length > 0){
+            acadSessionOptionsList.forEach(acadSession => {
+                acadSessionSelect.addOption({
+                    value : acadSession.sap_acad_session_id,
+                    text : `${acadSession.acad_session}`
+                })
+            })
+        }else{
+            acadSessionSelect.addOption({ value: "", text: "No Acad Session", disabled: true})
+        }
+
+        acadSessionSelect.refreshOptions(false)
+    }
+
+    function fetchPaginatedData(pageNo){
+
+        const entriesCount = divBatchEntries.items[0] || 10
+        const programId = programSelect.items[0] || -1
+        const acadSessionId = acadSessionSelect.items[0] || -1
+
+        // console.log(pageNo, entriesCount, programId, acadSessionId)
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/division-batches/div-batch-by-pages",
+            data : {
+                letterSearch : '',
+                programId : programId,
+                acadSessionId :  acadSessionId,
+                entriesCount : entriesCount,
+                pageNo : pageNo
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            // console.log(result)
+            renderDivBatchesListTable(result.divBatchListByPages)
+            // paginationData(entriesCount, result.divBatchListByPagesCount)
+        }).catch(err => {
+            console.log(err.responseJSON.description)
+        })
+    }
+
+    function renderDivBatchesListTable(divisionBatchesList){
+        const tableBody = document.querySelector(".table-body")
+        tableBody.innerHTML = ""
+
+        $("#select-all-div-batch-check").prop("checked", false)
+        $("#delete-all-div-batch").attr("disabled", true)
+        deleteDivBatchesList.length = 0
+
+
+        if (divisionBatchesList.length > 0) {
+            divisionBatchesList.forEach((divisionBatch, idx) => {
+                const row = document.createElement("tr")
+                row.innerHTML = `
+                    <td>
+                        <div class="d-flex justify-content-center align-items-center">
+                            <span class="div-batch-idx">${idx + 1}</span>
+                            <input type="checkbox" 
+                                class="select-div-batch-check d-none" 
+                                style="width: 16px; height: 16px;"
+                                data-div-batch-id = "${divisionBatch.id}"
+                            >
+                        </div>
+                    </td>
+                    <td>${divisionBatch.program_name}</td>
+                    <td>${divisionBatch.acad_session}</td>
+                    <td>${divisionBatch.course_name}</td>
+                    <td>${divisionBatch.division}</td>
+                    <td>${divisionBatch.batch}</td>
+                    <td>${divisionBatch.max_seats}</td>
+                    <td>
+                        <div class="d-flex justify-content-center align-items-center gap-3">
+                            <button class="border-0 bg-transparent"
+                                data-division-batch-id="${divisionBatch.id}"
+                                data-division-batch-program-name="${divisionBatch.program_name}"
+                                data-division-batch-acad-session="${divisionBatch.acad_session}"
+                                data-division-batch-course-name="${divisionBatch.course_name}"
+                                data-division-batch-div="${divisionBatch.division}"
+                                data-division-batch-batch="${divisionBatch.batch}"
+                                data-division-batch-max-seats="${divisionBatch.max_seats}"
+                                data-bs-toggle="modal" data-bs-target="#edit-division-batch-modal">
+                                <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                            </button>
+                            <button class="border-0 bg-transparent"
+                                data-division-batch-id="${divisionBatch.id}"
+                                data-division-batch-course-name="${divisionBatch.course_name}"
+                                data-division-batch-div="${divisionBatch.division}"
+                                data-division-batch-batch="${divisionBatch.batch}"
+                                data-bs-toggle="modal" data-bs-target="#delete-division-batch-modal">
+                                <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                            </button>
+                        </div>
+                    </td>
+                `
+                tableBody.appendChild(row)
+            })
+        } else {
+            const noDataRow = document.createElement("tr")
+            noDataRow.innerHTML = `<td colspan="8">No Data</td>`
+            tableBody.appendChild(noDataRow)
+        }
+    }
+
+    function paginationData(rowCount, totalCount){ 
+        let pageNos = Math.ceil(Number(totalCount) / Number(rowCount))
+        // console.log("Page Numbers", pageNos)
+        $('#pagination').bootpag({
+            total: pageNos,
+            page: 1,
+            maxVisible: 10,
+            leaps: true,
+            firstLastUse: true,
+            first: '←',
+            last: '→',
+            wrapClass: 'pagination',
+            activeClass: 'active', 
+            disabledClass: 'disabled',
+            nextClass: 'next',
+            prevClass: 'prev',
+            lastClass: 'last',
+            firstClass: 'first'
+        }).on("page", function (event, num) {
+            // console.log('pagination here!!')
+            // console.log(num)
+            fetchPaginatedData(num)
+        })
+    }
+
+</script>
+<%- include("../partials/footerEnd") %>

@@ -1,0 +1,454 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<style>
+    .file-drop-zone {
+        width: 100%;
+        height: 200px;
+        border: 2px dashed #ccc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        cursor: pointer;
+        color: #666;
+        transition: border-color 0.3s ease;
+    }
+
+    .file-drop-zone:hover {
+        border-color: #666;
+    }
+
+    .file-drop-zone.dragover {
+        border-color: #007bff;
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+</style>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Completed Courses</h1>
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <button class="btn event-btn" id="delete-all-completed-course-btn"  data-bs-toggle="modal" data-bs-target="#delete-all-completed-courses-modal" disabled>Delete All Completed Courses</button>
+            <button class="btn event-btn" id="add-completed-course-btn"  data-bs-toggle="modal" data-bs-target="#add-completed-courses-modal">Add Completed Courses Data</button>
+        </div>
+    </div>
+
+   
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>
+                        <%- completedCoursesList.length > 0 
+                            ? `<input type="checkbox" id="select-all-completed-course-check" style="width: 16px; height: 16px;">`
+                            : '#'
+                        %>
+                    </th>
+                    <th>Student Name</th>
+                    <th>Course Name</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(completedCoursesList.length > 0){ %>
+                    <% completedCoursesList.forEach((completedCourse, idx) => { %>
+                        <tr>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="completed-course-idx"><%= (idx+1) %></span>
+                                    <input type="checkbox" 
+                                        class="select-completed-course-check d-none" 
+                                        style="width: 16px; height: 16px;"
+                                        data-completed-course-id = "<%= completedCourse.id %>"
+                                    >
+                                </div>
+                            </td>
+                            <td> <%= completedCourse.student_name %> </td>
+                            <td> <%= completedCourse.course_name %> </td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <!-- <button class="border-0 bg-transparent" 
+                                        data-completed-course-id = "<%= completedCourse.id %>"
+                                        data-completed-course-student-name = "<%= completedCourse.student_name %>"
+                                        data-completed-course-course-name = "<%= completedCourse.course_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#edit-completed-completed-course">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button> -->
+                                    <button class="border-0 bg-transparent" 
+                                        data-completed-course-id = "<%= completedCourse.id %>"
+                                        data-completed-course-student-name = "<%= completedCourse.student_name %>"
+                                        data-completed-course-course-name = "<%= completedCourse.course_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-completed-courses-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="4">
+                            No Completed Courses Data
+                        </td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- <div class="mt-4 w-100 d-flex justify-content-between align-items-center">
+        <% if(completedCoursesList.length > 0){ %>
+            <div>
+                <p>Total entries :&nbsp;<span id="page-no"><%- completedCoursesList.length %></span></p>
+            </div>
+            <div class="pagination-bar">
+                <div id="pagination" class="pagination-search"></div> 
+            </div>
+        <% } %>
+    </div> -->
+
+     <!-- Modal -->
+    <div class="modal fade" id="add-completed-courses-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Completed Courses</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <span>Download sample data : <a href="/admin/completed-courses/get-sample-complete-course-excel" download="SampleCompletedCourses.xlsx" class="" style="color: #DC2626;">Sample for Completed Courses</a></span>
+                    </div>
+                    <div id="file-drop-zone" class="file-drop-zone">
+                        <p>Drop your file here, or click to select</p>
+                        <input type="file" id="file-input" style="display: none;"  accept=".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"/>
+                    </div>
+                    <div id="file-info" class="w-100 mt-3 p-2 d-none justify-content-between align-items-center border rounded" >
+                        <p class="m-0" id="file-name"></p>
+                        <button class="btn btn-close" id="remove-btn"></button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn event-btn" id="save-completed-courses-btn">Add</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-all-completed-courses-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete All Completed Courses</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-0">Are you sure want to Delete All Completed Courses Data?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-all-completed-course-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+     <div class="modal fade" id="delete-completed-courses-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">   
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Student</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Delete Completed Course?</p>
+                    <p class="fs-5 mb-0" id="delete-completed-course-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-completed-course-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-completed-completed-course" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Completed Course</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row mb-2">
+                        <div class="col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Student Name :</label>
+                            <input type="text" class="modal-input" placeholder="Enter Student Name">
+                        </div>
+                        <div class="mt-2 mt-md-0 col-md-6 col-12 d-flex flex-column gap-1">
+                            <label class="modal-label">Completed Course Name :</label>
+                            <input type="text" class="modal-input" placeholder="Enter Completed Course Name">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-edit-completed-course-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<%- include("../partials/footer") %>
+<script>
+
+    setActiveMenuItem(`<%- active %>`)
+
+    // $("#set-entries").selectize()
+    // $("#set-program").selectize()
+    // $("#set-student").selectize()
+
+    let deleteCompletedCoursesList = []
+
+    var $fileDropZone = $('#file-drop-zone');
+    var $fileInput = $('#file-input');
+    var $fileInfo = $('#file-info');
+    var $fileName = $('#file-name');
+    var $removeFile = $('#remove-btn');
+    var selectedFile = null; // Store the selected file
+
+    // Trigger file input when div is clicked
+    $fileDropZone.on('click', function(e) {
+        if (e.target !== $fileInput[0]) {  // Check to ensure it's not the file input itself
+            $fileInput.trigger('click');
+        }
+    });
+
+    // Handle file selection through input
+    $fileInput.on('change', function(e) {
+        handleFiles(e.target.files);
+    });
+
+    // Handle drag and drop
+    $fileDropZone.on('dragover', function(e) {
+        e.preventDefault();
+        $fileDropZone.addClass('dragover');
+    });
+
+    $fileDropZone.on('dragleave', function() {
+        $fileDropZone.removeClass('dragover');
+    });
+
+    $fileDropZone.on('drop', function(e) {
+        e.preventDefault();
+        $fileDropZone.removeClass('dragover');
+        var files = e.originalEvent.dataTransfer.files;
+        handleFiles(files);
+    });
+
+    // Handle files (only 1 file allowed)
+    function handleFiles(files) {
+        if (files.length > 0) {
+            selectedFile = files[0]; // Select the first file
+            console.log('File dropped or selected:', selectedFile);
+            displayFile(selectedFile.name); // Display the file name
+        }
+    }
+
+    // Display the selected file and show remove button
+    function displayFile(fileName) {
+        $fileName.text(fileName);   // Set the file name in the UI
+        $fileInfo.removeClass('d-none'); // Remove d-none to make the file info visible
+        $fileInfo.addClass('d-flex')
+        $fileDropZone.hide();       // Hide the drop zone
+    }
+
+    // Remove the selected file
+    $removeFile.on('click', function() {
+        clearFileSelection();
+    });
+
+    // Clear the file selection
+    function clearFileSelection() {
+        $fileInput.val('');         // Clear the file input
+        $fileInfo.addClass('d-none'); // Hide file info section by adding d-none
+        $fileName.text('');         // Clear the file name
+        selectedFile = null;        // Reset selected file
+        $fileDropZone.show();       // Show the drop zone again
+    }
+
+    $("#select-all-completed-course-check").on("change", function(){
+        const isChecked = $(this).is(":checked")
+
+        if(isChecked){
+
+            $("#delete-all-completed-course-btn").attr("disabled", false)
+
+            $(".table-body tr").each(function(){
+                const row = $(this)
+                const checkbox = row.find(".select-completed-course-check")
+                const courseId = checkbox.data("completed-course-id")
+
+                row.find(".completed-course-idx").addClass("d-none")
+                checkbox.removeClass("d-none").prop("checked", true)
+
+                if(!deleteCompletedCoursesList.includes(courseId)){
+                    deleteCompletedCoursesList.push(courseId)
+                }
+            })
+            console.log("Selected IDs after selecting all: ", deleteCompletedCoursesList)
+        }else{
+            $("#delete-all-completed-course-btn").attr("disabled", true)
+
+            $(".table-body tr").each(function(){
+                const row = $(this)
+                const checkbox = row.find(".select-completed-course-check")
+
+                row.find(".completed-course-idx").removeClass("d-none")
+                checkbox.addClass("d-none").prop("checked", false)
+
+            })
+            deleteCompletedCoursesList.length = 0
+            console.log("Selected IDs cleared: ", deleteCompletedCoursesList)
+        }
+    })
+
+    $(".table-body").on("change", ".select-completed-course-check", function(){
+        const checkbox = $(this)
+        const courseId = checkbox.data("completed-course-id")
+
+        if(checkbox.is(":checked")){
+            if(!deleteCompletedCoursesList.includes(courseId)){
+                deleteCompletedCoursesList.push(courseId)
+            }
+        }else{
+            const index = deleteCompletedCoursesList.indexOf(courseId)
+            if(index > -1){
+                deleteCompletedCoursesList.splice(index, 1)
+            }
+        }
+        console.log("Updated Selected IDs: ", deleteCompletedCoursesList);
+
+    })
+
+    $("#save-completed-courses-btn").on("click", function(){
+        if(!selectedFile){
+            alert("Please select file first")
+            return
+        }
+
+        const formData = new FormData()
+        formData.append('excel-file', selectedFile)
+
+        $.ajax({
+            url: '/admin/completed-courses/add-completed-course', 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (result) {
+                // console.log(result)
+                $("#add-completed-courses-modal").modal("hide")
+                
+                clearFileSelection()
+                setTimeout(function(){
+                    location.reload()
+                }, 3000)
+
+                toast.success(result.description)
+            },
+            error: function (xhr, status, error) {
+                toast.error(xhr.responseJSON.description)
+                
+            }
+        })
+    })
+
+    $("#confirm-delete-all-completed-course-btn").on("click", function(){
+        if(deleteCompletedCoursesList.length > 0){
+            // const completedCourseList = deleteCompletedCoursesList.map(courseId => deleteCompleteCourse = {id : parseInt(courseId)})
+            const completedCourseList = deleteCompletedCoursesList.map(courseId => deleteCompleteCourse = {id : JSON.parse(courseId)})
+            console.log(completedCourseList)
+            let ApiObj = {
+                type : "POST",
+                url : "/admin/completed-courses/delete-all-complete-course",
+                data : {
+                    completedCourseList : completedCourseList
+                },
+                datatype : JSON
+            }
+
+            ajaxApi(ApiObj).then(result => {
+                // console.log(result)
+                
+                $("#delete-all-completed-courses-modal").modal("hide")
+                toast.success(result.description)
+
+                setTimeout(()=>{
+                    location.reload()
+                },[3000])
+
+            }).catch(err => {
+                toast.error(err.responseJSON.description)
+            })
+        }
+    })
+
+    $("#delete-completed-courses-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const completedCourseId = btn.getAttribute("data-completed-course-id")
+        const completedCourseStudent = btn.getAttribute("data-completed-course-student-name").toLowerCase().replace(/\b\w/g, char => char.toUpperCase())
+        const completedCourseName = btn.getAttribute("data-completed-course-course-name")
+        $("#delete-completed-course-name").text(`${completedCourseStudent} - ${completedCourseName}`)
+        $("#confirm-delete-completed-course-btn").attr('data-completed-course-id', completedCourseId)
+    })
+
+    $("#confirm-delete-completed-course-btn").on("click", function(){
+        const completedCourseId = $(this).attr('data-completed-course-id')
+
+        // const completedCourseList = deleteCompletedCoursesList.map(courseId => deleteCompleteCourse = {id : parseInt(courseId)})
+        completedCourse = {
+            id : parseInt(completedCourseId)
+        }
+        
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/completed-courses/delete-complete-course",
+            data : {
+                completedCourseId : [completedCourse]
+            },
+            datatype : JSON
+        }
+        
+        console.log(ApiObj)
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            $("#delete-completed-courses-modal").modal("hide")
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(error => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#delete-completed-courses-modal").modal("hide")
+
+    })
+
+</script>
+<%- include("../partials/footerEnd") %>

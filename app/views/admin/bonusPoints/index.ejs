@@ -1,0 +1,256 @@
+<%- include("../partials/head") %>
+<%- include("../partials/leftSidebar") %>
+<%- include("../partials/header") %>
+
+<div class="content">
+
+    <div class="breadcrumbs-container">
+        <ul class="breadcrumb">
+            <% if(breadcrumbs){%> <% for (let crumbs of breadcrumbs){%>
+                <li><a href="<%- crumbs.url%>"><%- crumbs.name%></a></li>
+                <%} }%>
+        </ul>
+    </div>
+
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+        <h1 class="page-title">Bonus Points</h1>
+        <button class="btn event-btn" data-bs-toggle="modal" data-bs-target="#add-bonus-points-modal">Add Bonus Points</button>
+    </div>
+
+    <div class="card border-0 table-responsive">
+        <table class="w-100">
+            <thead>
+                <tr class="table-head-row">
+                    <th>#</th>
+                    <th>Round Name</th>
+                    <th>Bonus Points</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody class="table-body">
+                <% if(bonusPointsList.length>0){ %>
+                    <% bonusPointsList.forEach((bonusPoints, idx) => { %>
+                        <tr>
+                            <td><%= (idx+1) %></td>
+                            <td><%= bonusPoints.round_name %></td>
+                            <td><%= bonusPoints.incrementPoints %></td>
+                            <td>
+                                <div class="d-flex justify-content-center align-items-center gap-3">
+                                    <button class="border-0 bg-transparent ms-1" 
+                                        data-bonus-points-id = "<%= bonusPoints.id %>"
+                                        data-round-name = "<%= bonusPoints.round_name %>"
+                                        data-bonus-points = "<%= bonusPoints.incrementPoints %>"
+                                        data-bs-toggle="modal" data-bs-target="#edit-bonus-points-modal">
+                                        <i class="fa fa-pencil-alt" style="font-size: 18px; color: green;"></i>
+                                    </button>
+                                    <button class="border-0 bg-transparent me-1" 
+                                        data-bonus-points-id = "<%= bonusPoints.id %>"
+                                        data-round-name = "<%= bonusPoints.round_name %>"
+                                        data-bs-toggle="modal" data-bs-target="#delete-bonus-points-modal">
+                                        <i class="fa fa-trash-alt" style="font-size: 18px; color: red;"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <% }) %>
+                <% }else{ %>
+                    <tr>
+                        <td colspan="4">No Bonus Points Data</td>
+                    </tr>
+                <% } %>
+            </tbody>
+        </table>
+    </div>
+    
+
+    <!-- Modal -->
+
+    <div class="modal fade" id="add-bonus-points-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Add Bonus Bid Points</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column mb-3">
+                        <p class="fs-6 mb-0">Round Name</p>
+                        <p class="fs-5 mb-0" style="font-weight: 500;">Demand Estimation Round</p>
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label">Bonus Points</label>
+                        <input type="number" class="modal-input" id="add-bonus-points-input" placeholder="Enter Bonus Points">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-add-bonus-points-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="delete-bonus-points-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Delete Bonus Points</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="fs-6 mb-2">Are you sure want to Delete Bonus Points for Round?</p>
+                    <p class="fs-5 mb-0" id="delete-bonus-points-round-name" style="font-weight: 500;"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-delete-bounus-points-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="edit-bonus-points-modal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">Edit Bonus Bid Points</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="d-flex flex-column gap-1 mb-2">
+                        <p class="fs-6 mb-2">Round Name</p>
+                    <p class="fs-5 mb-0" id="edit-bonus-points-round-name" style="font-weight: 500;"></p>
+                    </div>
+                    <div class="d-flex flex-column gap-1">
+                        <label class="modal-label">Bonus Points</label>
+                        <input type="number" class="modal-input"id="edit-bonus-points-input" placeholder="Enter Bonus Points">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn event-btn" id="confirm-edit-bonus-points-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<%- include("../partials/footer") %>
+<script>
+    setActiveMenuItem(`<%- active %>`)
+    
+    $("#delete-bonus-points-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const bonusPointsId = btn.getAttribute('data-bonus-points-id')
+        const bonusPointsRoundName = btn.getAttribute("data-round-name")
+
+        $("#delete-bonus-points-round-name").text(bonusPointsRoundName)
+        $("#confirm-delete-bounus-points-btn").attr('data-bonus-points-id', bonusPointsId)
+    })
+
+    $("#confirm-delete-bounus-points-btn").on("click", function(){
+        const bonusPointsId = $(this).attr('data-bonus-points-id')
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/bonus-points/delete-bonus-points",
+            data : {
+                bonusPointsId : bonusPointsId
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#delete-bonus-points-modal").modal("hide")
+    })
+
+    $("#confirm-add-bonus-points-btn").on("click", function(){
+        const bonusBidPoints = $("#add-bonus-points-input").val()
+        
+        if(bonusBidPoints<0){
+            alert("All Feilds Required!!")
+        }
+
+        let inputJSON = {
+            round_lid : 1,
+            points_to_increase_after_demand : bonusBidPoints
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin/bonus-points/add-bonus-points",
+            data : {
+                inputJSON : JSON.stringify(inputJSON)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#add-bonus-points-modal").modal('hide')
+    })
+
+    $("#edit-bonus-points-modal").on("show.bs.modal", function(event){
+        const btn = event.relatedTarget
+        const bonusPointsId = btn.getAttribute("data-bonus-points-id")
+        const bonusPointsRoundName = btn.getAttribute("data-round-name")
+        const bonusBidPoints = btn.getAttribute("data-bonus-points")
+        $("#edit-bonus-points-round-name").text(bonusPointsRoundName)
+        $("#edit-bonus-points-input").val(bonusBidPoints)
+        $("#confirm-edit-bonus-points-btn").attr("data-bonus-points-id", bonusPointsId)
+    })
+
+    $("#confirm-edit-bonus-points-btn").on("click", function(){
+        const bonusPointsId = $(this).attr("data-bonus-points-id")
+        const bonusBidPoints = $("#edit-bonus-points-input").val()
+        
+        // console.log(bonusPointsId)
+
+        if(bonusBidPoints<=0){
+            alert("All Feilds Required!!")
+        }
+
+        let inputJson = {
+            id: bonusPointsId,
+            points_to_increase_after_demand: bonusBidPoints
+        }
+
+        let ApiObj = {
+            type : "POST",
+            url : "/admin//bonus-points/edit-bonus-points",
+            data : {
+                inputJSON : JSON.stringify(inputJson)
+            },
+            datatype : JSON
+        }
+
+        ajaxApi(ApiObj).then(result => {
+            toast.success(result.description)
+            setTimeout(()=>{
+                location.reload()
+            },[3000])
+        }).catch(err => {
+            toast.error(err.responseJSON.description)
+        })
+
+        $("#edit-bonus-points-modal").modal('hide')
+    })
+
+</script>
+<%- include("../partials/footerEnd") %>
